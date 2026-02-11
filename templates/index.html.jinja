@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backstage</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #F5EEDD; 
+      color: #06202B; 
+    }
+
+    .page {
+      border: 2px solid #06202B;
+      min-height: 100vh;
+      background: #F5EEDD;
+    }
+
+    .top-bar {
+      padding: 20px;
+      font-size: 36px;
+      font-weight: bold;
+      background: #7AE2CF; 
+      color: #06202B;
+      border-bottom: 2px solid #06202B;
+    }
+
+    .nav-bar {
+      display: flex;
+      border-bottom: 2px solid #06202B;
+      background: #F5EEDD;
+      height: 70px;
+    }
+
+    .nav-spacer {
+      flex: 1;
+      border-right: 2px solid #06202B;
+    }
+
+    .nav-button {
+      width: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 2px solid #06202B;
+      font-size: 20px;
+      font-weight: bold;
+      background: #077A7D; 
+      color: #F5EEDD;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-button:hover {
+      background: #06202B;
+      color: #7AE2CF;
+    }
+
+    .content {
+      padding: 60px 80px;
+    }
+
+    .content h1 {
+      font-size: 42px;
+      margin-bottom: 30px;
+      font-weight: normal;
+    }
+
+    .content p {
+      font-size: 22px;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="top-bar">
+      Backstage
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-spacer"></div>
+      <div class="nav-button">login</div>
+      <div class="nav-button">sign up</div>
+    </div>
+
+    <div class="content">
+      <h1>Meet new musicians</h1>
+
+      <p>
+        Join this growing community to connect<br>
+        with artists through your interests and<br>
+        cultivate a like minded community.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+
+
+
