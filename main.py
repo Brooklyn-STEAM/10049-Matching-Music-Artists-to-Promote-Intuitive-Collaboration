@@ -8,3 +8,21 @@ import pymysql
 from dynaconf import Dynaconf
 
 app = Flask(__name__)
+
+
+config = Dynaconf(settings_file = [ "settings.toml" ])
+@app.route("/")
+def index():
+   return render_template("index.html.jinja")
+
+def connect_db():
+    conn = pymysql.connect(
+        host= "db.steamcenter.tech",
+        user= config.username,
+        password= config.password,
+        database="back_stage",
+        autocommit=True,
+        cursorclass=pymysql.cursors.DictCursor
+    )  
+
+    return conn
