@@ -13,35 +13,7 @@
   <div class="min-h-screen flex flex-col">
 
     <!-- Top Navigation -->
-    <header class="bg-gradient-to-r from-[#F5EEDD] to-[#7AE2CF] shadow-sm">
-      <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-        
-        <div class="flex items-center gap-4">
-          <img src="static/Backstage_No_Bg.png" alt="logo" class="h-14">
-          <h1 class="text-2xl font-semibold tracking-tight">BackStage</h1>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <button class="px-5 py-2 rounded-xl font-medium 
-                         text-[#06202B] 
-                         hover:bg-[#06202B]/10 
-                         transition">
-            Login
-          </button>
-
-          <button class="px-6 py-2 rounded-xl font-semibold 
-                         bg-[#077A7D] text-white 
-                         shadow-md
-                         hover:bg-[#06202B] 
-                         hover:shadow-lg
-                         transition duration-200">
-            Sign Up
-          </button>
-        </div>
-
-      </div>
-    </header>
-
+  {% include "navbar.html.jinja"%}
 
     <!-- Hero Section -->
     <main class="flex-1 flex items-center">
@@ -79,9 +51,10 @@
 
         <!-- Decorative Panel -->
         <div class="hidden md:block">
-          <div class="w-full h-[400px] rounded-3xl 
+          <div class="w-full h-[305px] rounded-3xl 
                       bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
-                      shadow-xl">
+                      shadow-xl place-content-center">
+                      <img src="static/colab-image.png" alt="" class=" rounded-3xl ">
           </div>
         </div>
 
