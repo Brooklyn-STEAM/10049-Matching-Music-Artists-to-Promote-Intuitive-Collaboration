@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  {% include "navbar.html.jinja"%}
+
+{% for message in get_flashed_messages() %}
+<li>{{message}}</li>
+{%endfor%}
+
+ <form method="post" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg grid grid-cols-2 gap-4">
+    <label> Name</label>
+    <input name="name" required>
+
+  <label>Email</label>
+    <input name="email" required type="email">
+
+    <label> Password </label>
+    <input name="password" required type="password">
+
+      <label> Confirm Password </label>
+    <input name="confirm_password" required type="password">
+
+
+<button type="submit" class="w-full mt-4 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">Register</button>
+ 
+    </form>
+</div>
+
+</body>
+
+
+      
+ 
+
+    </main>
+  </body>
+</html>
