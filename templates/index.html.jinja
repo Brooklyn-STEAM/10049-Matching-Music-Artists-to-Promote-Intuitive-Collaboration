@@ -3,108 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>Backstage</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: #F5EEDD; 
-      color: #06202B; 
-    }
-
-    .page {
-      border: 2px solid #06202B;
-      min-height: 100vh;
-      background: #F5EEDD;
-    }
-
-    .top-bar {
-      padding: 20px;
-      font-size: 36px;
-      font-weight: bold;
-      background: #7AE2CF; 
-      color: #06202B;
-      border-bottom: 2px solid #06202B;
-    }
-
-    .nav-bar {
-      display: flex;
-      border-bottom: 2px solid #06202B;
-      background: #F5EEDD;
-      height: 70px;
-    }
-
-    .nav-spacer {
-      flex: 1;
-      border-right: 2px solid #06202B;
-    }
-
-    .nav-button {
-      width: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-left: 2px solid #06202B;
-      font-size: 20px;
-      font-weight: bold;
-      background: #077A7D; 
-      color: #F5EEDD;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .nav-button:hover {
-      background: #06202B;
-      color: #7AE2CF;
-    }
-
-    .content {
-      padding: 60px 80px;
-    }
-
-    .content h1 {
-      font-size: 42px;
-      margin-bottom: 30px;
-      font-weight: normal;
-    }
-
-    .content p {
-      font-size: 22px;
-      max-width: 600px;
-      line-height: 1.4;
-    }
-  </style>
 </head>
 
-<body>
-  <div class="page">
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
 
-    <div class="top-bar">
-      Backstage
-    </div>
+  <!-- Page Wrapper -->
+  <div class="min-h-screen flex flex-col">
 
-    <div class="nav-bar">
-      <div class="nav-spacer"></div>
-      <div class="nav-button">login</div>
-      <div class="nav-button">sign up</div>
-    </div>
+    <!-- Top Navigation -->
+    <header class="bg-gradient-to-r from-[#F5EEDD] to-[#7AE2CF] shadow-sm">
+      <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+        
+        <div class="flex items-center gap-4">
+          <img src="static/Backstage_No_Bg.png" alt="logo" class="h-14">
+          <h1 class="text-2xl font-semibold tracking-tight">BackStage</h1>
+        </div>
 
-    <div class="content">
-      <h1>Meet new musicians</h1>
+        <div class="flex items-center gap-4">
+          <button class="px-5 py-2 rounded-xl font-medium 
+                         text-[#06202B] 
+                         hover:bg-[#06202B]/10 
+                         transition">
+            Login
+          </button>
 
-      <p>
-        Join this growing community to connect<br>
-        with artists through your interests and<br>
-        cultivate a like minded community.
-      </p>
-    </div>
+          <button class="px-6 py-2 rounded-xl font-semibold 
+                         bg-[#077A7D] text-white 
+                         shadow-md
+                         hover:bg-[#06202B] 
+                         hover:shadow-lg
+                         transition duration-200">
+            Sign Up
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+
+    <!-- Hero Section -->
+    <main class="flex-1 flex items-center">
+      <div class="max-w-7xl mx-auto px-8 py-20 grid md:grid-cols-2 gap-16 items-center">
+
+        <!-- Text -->
+        <div>
+          <h2 class="text-5xl font-semibold mb-6 leading-tight">
+            Meet new musicians
+          </h2>
+
+          <p class="text-lg text-[#06202B]/80 max-w-xl leading-relaxed mb-8">
+            Join a growing community to connect with artists through your interests 
+            and cultivate a like-minded creative network.
+          </p>
+
+          <div class="flex gap-4">
+            <button class="px-8 py-3 rounded-2xl font-semibold
+                           bg-[#077A7D] text-white 
+                           shadow-md
+                           hover:bg-[#06202B]
+                           hover:shadow-lg
+                           transition">
+              Get Started
+            </button>
+
+            <button class="px-8 py-3 rounded-2xl font-semibold
+                           border border-[#06202B]/20
+                           hover:bg-[#06202B]/5
+                           transition">
+              Learn More
+            </button>
+          </div>
+        </div>
+
+        <!-- Decorative Panel -->
+        <div class="hidden md:block">
+          <div class="w-full h-[400px] rounded-3xl 
+                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
+                      shadow-xl">
+          </div>
+        </div>
+
+      </div>
+    </main>
 
   </div>
+
 </body>
 </html>
 
