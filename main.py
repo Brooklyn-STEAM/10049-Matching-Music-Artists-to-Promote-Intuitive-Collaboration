@@ -11,9 +11,6 @@ app = Flask(__name__)
 
 
 config = Dynaconf(settings_file = [ "settings.toml" ])
-@app.route("/")
-def index():
-   return render_template("index.html.jinja")
 
 def connect_db():
     conn = pymysql.connect(
@@ -26,3 +23,7 @@ def connect_db():
     )  
 
     return conn
+
+@app.route("/")
+def index():
+   return render_template("index.html.jinja")
