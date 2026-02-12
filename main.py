@@ -28,5 +28,6 @@ def connect_db():
 def index():
    return render_template("index.html.jinja")
 
-
-
+@app.route("/login")
+def login():
+    return render_template("login.html.jinja")
