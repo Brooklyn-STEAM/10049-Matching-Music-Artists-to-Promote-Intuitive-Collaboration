@@ -89,3 +89,39 @@ def login():
             return redirect('/browse')
         
     return render_template("login.html.jinja")
+
+
+@app.route("/register", methods=["POST", "GET"])
+def register():  
+        if request.method == "POST":
+            name = request.form["name"]
+
+            email = request.form["email"]
+
+            password = request.form["password"]
+            confirm_password = request.form["confirm_password"]
+
+            if password != confirm_password:
+                flash("Passwords do not match!")
+            elif len(password) < 8:
+                flash("Password must be at least 8 characters long!")
+                flash("password is too short")
+                
+            else:
+                connection = connect_db()
+
+                cursor = connection.cursor()
+                
+                try:
+                    cursor.execute(
+                        'INSERT INTO `User` (`Name`, `email`, `password`, ) VALUES (%s, %s, %s, %s)',
+                        (name, email, password, ))
+                except pymysql.err.IntegrityError:
+                    flash("Email already registered!")
+                    connection.close()
+                else:
+                    connection.commit()  
+                    connection.close()
+                    return redirect('/login')
+        
+        return render_template("register.html.jinja")
