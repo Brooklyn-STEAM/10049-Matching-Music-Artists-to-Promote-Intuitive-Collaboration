@@ -86,7 +86,7 @@ def login():
             flash("Incorrect password")
         else:
             login_user(User(result))
-            return redirect('/browse')
+            return redirect('/')
         
     return render_template("login.html.jinja")
 
