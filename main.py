@@ -114,7 +114,7 @@ def register():
                 
                 try:
                     cursor.execute(
-                        'INSERT INTO `User` (`Name`, `email`, `password`, ) VALUES (%s, %s, %s, %s)',
+                        'INSERT INTO `User` (`Name`, `email`, `password`, ) VALUES (%s, %s, %s)',
                         (name, email, password, ))
                 except pymysql.err.IntegrityError:
                     flash("Email already registered!")
