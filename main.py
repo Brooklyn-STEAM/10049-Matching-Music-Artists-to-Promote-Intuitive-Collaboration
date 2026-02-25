@@ -125,3 +125,15 @@ def register():
                     return redirect('/login')
         
         return render_template("register.html.jinja")
+
+
+
+
+
+
+
+
+@app.route("/matching")
+
+def matching():
+    return render_template("matching.html.jinja")
