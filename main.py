@@ -137,3 +137,13 @@ def profile(UserID):
     return render_template("Profile.html.jinja", profile = result )
     # create a form to create a profile 
     # profile contain discography and a decription and the individuals selceted interests
+
+
+
+
+
+
+@app.route("/matching")
+
+def matching():
+    return render_template("matching.html.jinja")
