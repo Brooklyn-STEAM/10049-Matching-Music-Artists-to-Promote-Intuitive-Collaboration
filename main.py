@@ -86,7 +86,7 @@ def login():
             flash("Incorrect password")
         else:
             login_user(User(result))
-            return redirect('/browse')
+            return redirect('/profile')
         
     return render_template("login.html.jinja")
 
@@ -114,8 +114,8 @@ def register():
                 
                 try:
                     cursor.execute(
-                        'INSERT INTO `User` (`Name`, `email`, `password`, ) VALUES (%s, %s, %s, %s)',
-                        (name, email, password, ))
+                        'INSERT INTO `User` (`Name`, `email`, `password` ) VALUES (%s, %s, %s)',
+                        (name, email, password,) )
                 except pymysql.err.IntegrityError:
                     flash("Email already registered!")
                     connection.close()
@@ -139,3 +139,23 @@ def customize():
 
 
     return render_template("profile.html.jinja")
+@app.route("/profile")
+def profile(UserID):
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM `Profile` WHERE `ID` = %s',(UserID))
+    result = cursor.fetchone()
+    connection.close()
+    return render_template("Profile.html.jinja", profile = result )
+    # create a form to create a profile 
+    # profile contain discography and a decription and the individuals selceted interests
+
+
+
+
+
+
+@app.route("/matching")
+
+def matching():
+    return render_template("matching.html.jinja")
