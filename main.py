@@ -127,6 +127,18 @@ def register():
         return render_template("register.html.jinja")
 
 
+
+
+@app.route("/profile/customization")
+def customize():
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    connection.close()
+
+
+    return render_template("profile.html.jinja")
 @app.route("/profile")
 def profile(UserID):
     connection = connect_db()
