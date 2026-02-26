@@ -137,7 +137,7 @@ def profile(UserID):
     return render_template("Profile.html.jinja", profile = result )
     # create a form to create a profile 
     # profile contain discography and a decription and the individuals selceted interests
-@app.route('profile/cusomization')
+@app.route('/profile/cusomization')
 def profile_settings():
     if request.method == 'POST':
 
@@ -152,7 +152,7 @@ def profile_settings():
         cursor = connection.cursor()
 
         cursor.execute(
-            'INSERT INTO `Profile` (`Profile_name`,`Profile_picture`,`discography`,`description`) VALUES (%s, %s, %s,%s)',
+            'INSERT INTO `Profile` (`Profile_name`,`Profile_picture`,`discography`,`description`) VALUES (%s, %s, %s, %s)',
             (Profile_name, discography, description, current_user.id,) )
     return render_template("profile_customization.html.jinja")
 
