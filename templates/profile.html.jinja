@@ -4,88 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>BackStage | Dashboard</title>
+  <title>BackStage | Login</title>
 </head>
 
 <body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
 
-  {% include "navbar.html.jinja" %}
-
-  <main class="max-w-7xl mx-auto px-12 py-10">
-
-   
-    <section class="bg-white border-2 border-[#7AE2CF] rounded-2xl p-10">
-
-  
-  <div class="mb-8">
-    <h2 class="text-2xl font-semibold text-[#077A7D]">
-      Hello, *insert username*
-    </h2>
+  {% include "navbar.html.jinja"%}
+<div class="">
+  <div>
+    <h1>{{Profile["Profile_name"]}}</h1>
   </div>
-
-  
-  <form class="space-y-8">
-
-    
-    <div class="grid grid-cols-3 gap-8">
-
-      
-      <div class="col-span-1 flex flex-col gap-6">
-
-        
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-32">
-          <textarea
-            placeholder="Write your description..."
-            class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
-          ></textarea>
-        </div>
-
-        
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-40 overflow-y-auto">
-          <label class="block text-sm font-semibold text-[#077A7D] mb-2">
-            Interests
-          </label>
-
-          <div class="flex flex-col gap-3">
-            <input class="border border-[#7AE2CF] rounded-md px-3 py-2" placeholder="Add an interest" />
-            <input class="border border-[#7AE2CF] rounded-md px-3 py-2" placeholder="Add an interest" />
-            <input class="border border-[#7AE2CF] rounded-md px-3 py-2" placeholder="Add an interest" />
-          </div>
-        </div>
-
-      </div>
-
-      
-      <div class="col-span-2">
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-[420px]">
-          <textarea
-            placeholder="Add your discography..."
-            class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
-          ></textarea>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="flex justify-end">
-      <button
-        type="button"
-        class="bg-[#077A7D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06202B] transition"
-      >
-        Save Changes
-      </button>
-    </div>
-
-  </form>
-  
-
-</section>
-
-
-    
-   
-
-  </main>
-
+  <h1>{{Profile["description"]}}</h1>
+  <h1>{{Profile["discography"]}}</h1>
+</div>
+<a href ="/profile_custumization"> edit profile</a>
 </body>
-</html>

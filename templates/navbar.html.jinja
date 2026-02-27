@@ -6,7 +6,7 @@
           <h1 class="text-2xl font-semibold tracking-tight">BackStage</h1>
         </div>
         </a>
-
+      {% if not current_user.is_authenticated%}
         <div class="flex items-center gap-4">
           <a href="/login"class="px-5 py-2 rounded-xl font-medium 
                          text-[#06202B] 
@@ -14,7 +14,7 @@
                          transition">
             Login
           </a>
-
+      
           <a href="/register" class="px-6 py-2 rounded-xl font-semibold 
                          bg-[#077A7D] text-white 
                          shadow-md
@@ -23,7 +23,25 @@
                          transition duration-200">
             Sign Up
           </a>
+          </div>
+      {%else%}
+      <div class="flex items-center gap-4">
+          <a href="/profile" class="bg-[#077A7D] 
+                          text-white rounded-xl font-semibold 
+                          shadow-md
+                          px-4 py-2
+                          hover:bg-[#06202B] 
+                          hover:shadow-lg
+                          transition duration-200"
+                                    >Profile</a>
+                                    <div class="flex items-center gap-4">
+          <a href="/logout"class="px-5 py-2 rounded-xl font-medium 
+                         text-[#06202B] 
+                         hover:bg-[#06202B]/10 
+                         transition">
+            Logout
+          </a>
         </div>
-
+      {%endif%}
       </div>
     </header>

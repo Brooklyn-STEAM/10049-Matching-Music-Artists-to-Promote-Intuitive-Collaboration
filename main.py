@@ -22,10 +22,9 @@ class User:
     is_anonymous = False
 
     def __init__ (self, result):
-        self.name = result ['Name']
-        self.email = result ['Email']
-        self.birthday = result['BirthDate']
-        self.id = result ['ID']
+        self.name = result ['name']
+        self.email = result ['email']
+        self.id = result ['User_ID']
 
     def get_id(self):
         return str(self.id)
@@ -35,7 +34,7 @@ def local_user(user_id):
     connection = connect_db()
     cursor = connection.cursor()
 
-    cursor.execute(" SELECT  * FROM `User` WHERE `ID` = %s", (user_id) )
+    cursor.execute(" SELECT  * FROM `User` WHERE `User_ID` = %s", (user_id) )
 
     result = cursor.fetchone()
 
@@ -62,11 +61,11 @@ def connect_db():
 def index():
    return render_template("index.html.jinja")
 
-@app.route("/login")
+@app.route("/login", methods = ['POST','GET'])
 def login():
-    if request.method == 'POST':
+    if request.method == "POST":
 
-        email = request.form ['username']
+        username = request.form ['name']
 
         password = request.form ['password']
 
@@ -74,7 +73,7 @@ def login():
 
         cursor = connection.cursor()
 
-        cursor.execute(" SELECT * FROM `User` WHERE `Email` = %s ", ( email ))
+        cursor.execute(" SELECT * FROM `User` WHERE `name` = %s ", ( username ))
 
         result = cursor.fetchone()
 
@@ -82,15 +81,19 @@ def login():
         
         if result is None:
             flash("No user found")
-        elif password is result["Password"]:
+        elif password is result["password"]:
             flash("Incorrect password")
         else:
             login_user(User(result))
-            return redirect('/profile')
+            return redirect('/matching')
         
     return render_template("login.html.jinja")
 
-
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 @app.route("/register", methods=["POST", "GET"])
 def register():  
         if request.method == "POST":
@@ -128,32 +131,23 @@ def register():
 
 
 
-
-@app.route("/profile/customization")
-def customize():
-    connection = connect_db()
-
-    cursor = connection.cursor()
-
-    connection.close()
-
-
-    return render_template("profile.html.jinja")
 @app.route("/profile")
-def profile(UserID):
+@login_required
+def profile():
     connection = connect_db()
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM `Profile` WHERE `ID` = %s',(UserID))
+    cursor.execute('SELECT * FROM `Profile` WHERE `ID` = %s',(current_user.id))
     result = cursor.fetchone()
     connection.close()
-    return render_template("Profile.html.jinja", profile = result )
+    return render_template("profile.html.jinja", profile = result )
     # create a form to create a profile 
     # profile contain discography and a decription and the individuals selceted interests
-@app.route('/profile/cusomization')
+@app.route('/profile_custumization')
+@login_required
 def profile_settings():
     if request.method == 'POST':
 
-        Profile_name = request.form["Usename"]
+        Profile_name = request.form["Username"]
 
         discography = request.form["discography"]
 
@@ -164,7 +158,7 @@ def profile_settings():
         cursor = connection.cursor()
 
         cursor.execute(
-            'INSERT INTO `Profile` (`Profile_name`,`Profile_picture`,`discography`,`description`) VALUES (%s, %s, %s, %s)',
+            'INSERT INTO `Profile` (`Profile_name`,`Profile_picture`,`discography`,`description`) VALUES (%s, %s, %s,)',
             (Profile_name, discography, description, current_user.id,) )
     return render_template("profile_customization.html.jinja")
 
