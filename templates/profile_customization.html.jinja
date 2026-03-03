@@ -23,13 +23,20 @@
   <form class="space-y-8">
 
     <div class="mb-8">
+    <input class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-[100%] p-4 h-30 w-30" 
+    placeholder="    Picture"
+    type="textarea"
+    name="Profile_picture">
       <input 
-        class="text-2xl font-semibold text-[#077A7D]" 
+        class="text-2xl font-semibold text-[#077A7D] px-4" 
         placeholder="Hello! *insert username*"
         type ="text"
         name ="Profile_name"
       />
+      
+      
     </div>
+    
     <div class="grid grid-cols-3 gap-8">
 
       
@@ -38,36 +45,12 @@
         
         <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-32">
           <textarea
+          name = "discription"
             placeholder="Write your description..."
             class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
           ></textarea>
         </div>
 
-        
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-40 overflow-y-auto">
-          <label class="block text-sm font-semibold text-[#077A7D] mb-2">
-            Interests
-          </label>
-
-          <div class="flex flex-col gap-3">
-            <div class ="px-2">
-              <input type ="checkbox" name="" class="border border-[#7AE2CF] rounded-md px-3 py-2 text-sm font-semibold text-[#077A7D]" value="Rap" /><label>Rap</label>
-            </div>
-
-            <div class ="px-2">
-            <input type ="checkbox" name="" class="border border-[#7AE2CF] rounded-md px-3 py-2 text-sm font-semibold text-[#077A7D]" value="rock" /><label>rock</label>
-            </div>
-
-            <div class ="px-2">
-              <input type ="checkbox" name="" class="border border-[#7AE2CF] rounded-md px-3 py-2 text-sm font-semibold text-[#077A7D]" value="Rnb" /><label>Rnb</label>
-            </div>
-
-            <div class ="px-2">
-              <input type ="checkbox" name="" class="border border-[#7AE2CF] rounded-md px-3 py-2 text-sm font-semibold text-[#077A7D]" value="POP" /><label>POP</label>
-            </div>
-
-            </div>
-        </div>
 
       </div>
 
@@ -75,6 +58,7 @@
       <div class="col-span-2">
         <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-[420px]">
           <textarea
+          name = "discography"
             placeholder="Add your discography..."
             class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
           ></textarea>
@@ -82,10 +66,10 @@
       </div>
 
     </div>
-
+   
     <div class="flex justify-end">
       <button
-        type="button"
+        type="submit"
         class="bg-[#077A7D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06202B] transition"
       >
         Save Changes
