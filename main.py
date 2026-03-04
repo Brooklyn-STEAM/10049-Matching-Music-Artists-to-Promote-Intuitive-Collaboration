@@ -38,7 +38,7 @@ def local_user(user_id):
 
     result = cursor.fetchone()
 
-    connection.close
+    connection.close()
 
     if result is None:
         return None
@@ -119,6 +119,10 @@ def register():
                     cursor.execute(
                         'INSERT INTO `User` (`Name`, `email`, `password` ) VALUES (%s, %s, %s)',
                         (name, email, password,) )
+                    User_ID = cursor.lastrowid
+                    cursor.execute(
+                    'INSERT INTO `Profile` (`Profile_name`, `discography`, `description`,`Matches_ID`,`Profile_picture`,`User_ID` ) VALUES ("default","default","defualt",0,"default",%s)', (User_ID))
+                    
                 except pymysql.err.IntegrityError:
                     flash("Email already registered!")
                     connection.close()
@@ -136,13 +140,18 @@ def register():
 def profile():
     connection = connect_db()
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM `Profile` WHERE `ID` = %s',(current_user.id))
+    cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s',(current_user.id,))
     result = cursor.fetchone()
     connection.close()
-    return render_template("profile.html.jinja", profile = result )
+
+    if result is None:
+        flash("Profile not found.")
+        return redirect("/profile_custumization")
+    return render_template("profile.html.jinja", Profile = result )
+
     # create a form to create a profile 
     # profile contain discography and a decription and the individuals selceted interests
-@app.route('/profile_custumization')
+@app.route('/profile_custumization', methods=["GET","POST"])
 @login_required
 def profile_settings():
     if request.method == 'POST':
@@ -158,7 +167,11 @@ def profile_settings():
         cursor = connection.cursor()
 
         cursor.execute(
-            'INSERT INTO `Profile` (`Profile_name`,`Profile_picture`,`discography`,`description`) VALUES (%s, %s, %s,)',
+            """
+            UPDATE `Profile`  
+            SET `Profile_name` = %s,`Profile_picture`= %s,`discography`= %s,`description` = %s
+            WHERE `Profile` = %s And `UserID` = %s 
+            """,
             (Profile_name, discography, description, current_user.id,) )
     return render_template("profile_customization.html.jinja")
 
