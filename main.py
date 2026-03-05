@@ -156,11 +156,13 @@ def profile():
 def profile_settings():
     if request.method == 'POST':
 
-        Profile_name = request.form["Username"]
+        Profile_name = request.form["Profile_name"]
 
         discography = request.form["discography"]
 
-        description = request.form["description"]
+        description = request.form["discription"]
+
+        Profile_picture = request.form["Profile_picture"]
 
         connection = connect_db()
 
@@ -169,10 +171,16 @@ def profile_settings():
         cursor.execute(
             """
             UPDATE `Profile`  
-            SET `Profile_name` = %s,`Profile_picture`= %s,`discography`= %s,`description` = %s
-            WHERE `Profile` = %s And `UserID` = %s 
+            SET `Profile_name` = %s,
+            `Profile_picture`= %s,
+            `discography`= %s,
+            `description` = %s
+            WHERE `User_ID` = %s  
             """,
-            (Profile_name, discography, description, current_user.id,) )
+            (Profile_picture, Profile_name, discography, description, current_user.id,) )
+        connection.commit()
+        connection.close()
+        return redirect("/profile")
     return render_template("profile_customization.html.jinja")
 
 
