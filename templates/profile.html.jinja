@@ -4,19 +4,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>BackStage | Login</title>
+  <title>BackStage | Profile</title>
 </head>
 
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen">
 
-  {% include "navbar.html.jinja"%}
-<div class=""> 
-  <div>
-    <h1>{{Profile["Profile_name"]}}</h1>
+  {% include "navbar.html.jinja" %}
+
+  <!-- Header -->
+  <div class="flex items-center px-12 py-8">
+
+  <div class="w-20 h-20 rounded-full 
+              bg-[#7AE2CF] 
+              border-0 border-[#06202B] 
+              flex items-center justify-center 
+              font-semibold 
+              shadow-md
+              ml-auto">
+    Profile
   </div>
-  <h1>{{Profile["description"]}}</h1>
-  <h1>{{Profile["discography"]}}</h1>
+
 </div>
 
-<a href ="/profile_custumization"> edit profile</a>
+
+  <!-- Main Card -->
+  <div class="flex justify-center px-6 pb-20">
+
+    <div class="w-full max-w-4xl 
+                bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
+                rounded-[50px] 
+                border-0.5 border-[#06202B] 
+                shadow-2xl 
+                p-16">
+
+      <!-- Username -->
+      <h2 class="text-3xl font-bold text-center mb-12">
+        {{ Profile["Profile_name"] }}
+      </h2>
+
+      <!-- Description Box -->
+      <div class="max-w-xl mx-auto 
+                  bg-[#F5EEDD] 
+                  border-1 border-[#06202B] 
+                  rounded-3xl 
+                  p-8 
+                  text-center 
+                  mb-16 
+                  shadow-md">
+        <p class="text-lg leading-relaxed">
+          {{ Profile["description"] }}
+        </p>
+      </div>
+
+      <!-- Interests Section -->
+      <div class="grid grid-cols-2 gap-10 max-w-md mx-auto">
+
+        <div class="px-6 py-3 
+                    bg-[#F5EEDD] 
+                    border border-[#06202B] 
+                    rounded-xl 
+                    text-center 
+                    hover:bg-[#077A7D] 
+                    hover:text-white 
+                    transition duration-300">
+          #music
+        </div>
+
+        <div class="px-6 py-3 
+                    bg-[#F5EEDD] 
+                    border border-[#06202B] 
+                    rounded-xl 
+                    text-center 
+                    hover:bg-[#077A7D] 
+                    hover:text-white 
+                    transition duration-300">
+          #production
+        </div>
+
+        <div class="px-6 py-3 
+                    bg-[#F5EEDD] 
+                    border border-[#06202B] 
+                    rounded-xl 
+                    text-center 
+                    hover:bg-[#077A7D] 
+                    hover:text-white 
+                    transition duration-300">
+          #performing
+        </div>
+
+        <div class="px-6 py-3 
+                    bg-[#F5EEDD] 
+                    border border-[#06202B] 
+                    rounded-xl 
+                    text-center 
+                    hover:bg-[#077A7D] 
+                    hover:text-white 
+                    transition duration-300">
+          #creative
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </body>
+</html>
+
+
