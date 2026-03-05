@@ -146,12 +146,11 @@ def profile():
 
     if result is None:
         flash("Profile not found.")
-        return redirect("/profile_custumization")
     return render_template("profile.html.jinja", Profile = result )
 
     # create a form to create a profile 
     # profile contain discography and a decription and the individuals selceted interests
-@app.route('/profile_custumization', methods=["GET","POST"])
+@app.route('/profile_customization', methods=["GET","POST"])
 @login_required
 def profile_settings():
     if request.method == 'POST':
