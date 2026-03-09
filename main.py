@@ -1,13 +1,24 @@
 from flask import Flask, render_template,redirect,abort,request,url_for,flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = "static/uploads"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 
+import os
 import pymysql
 
 from dynaconf import Dynaconf
 
 app = Flask(__name__)
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 config = Dynaconf(settings_file = ["settings.toml"])
 
 app.secret_key = config.secret_key
@@ -161,7 +172,18 @@ def profile_settings():
 
         description = request.form["discription"]
 
-        Profile_picture = request.form["Profile_picture"]
+        file = request.files["Profile_picture"]
+
+        interest = request.form["name"]
+
+        filename = None
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+
+            filename = f"user_{current_user.id}_{filename}"
+
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
 
         connection = connect_db()
 
@@ -173,10 +195,11 @@ def profile_settings():
             SET `Profile_name` = %s,
             `Profile_picture`= %s,
             `discography`= %s,
-            `description` = %s
-            WHERE `User_ID` = %s  
+            `description` = %s,
+            WHERE `User_ID` = %s,
+            INSTERT `name` = %s 
             """,
-            (Profile_picture, Profile_name, discography, description, current_user.id,) )
+            ( Profile_name, file, discography, description, current_user.id, interest,) )
         connection.commit()
         connection.close()
         return redirect("/profile")
