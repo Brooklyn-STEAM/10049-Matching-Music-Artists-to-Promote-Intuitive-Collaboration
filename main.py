@@ -197,7 +197,7 @@ def profile_settings():
             `discography`= %s,
             `description` = %s,
             WHERE `User_ID` = %s,
-            INSTERT `name` = %s 
+            INSERT INTO `Interests` (`name`) VALUES (%s,)" 
             """,
             ( Profile_name, file, discography, description, current_user.id, interest,) )
         connection.commit()
