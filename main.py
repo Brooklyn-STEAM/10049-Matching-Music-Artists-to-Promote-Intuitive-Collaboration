@@ -189,6 +189,8 @@ def profile_settings():
 
         cursor = connection.cursor()
 
+        interests = request.form["name"]
+
         cursor.execute(
             """
             UPDATE `Profile`  
