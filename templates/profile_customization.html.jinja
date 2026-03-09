@@ -3,116 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
   <title>BackStage | Dashboard</title>
 </head>
-<script>
 
-</script>
 <body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
 
   {% include "navbar.html.jinja" %}
 
   <main class="max-w-7xl mx-auto px-12 py-10">
 
-   
     <section class="bg-white border-2 border-[#7AE2CF] rounded-2xl p-10">
 
-  
-  
+      <!-- PROFILE FORM -->
+      <form method="post" class="space-y-8">
 
-  
-  <form class="space-y-8" method = "post">
+        <!-- Profile Header -->
+        <div class="mb-8 flex items-center gap-6">
 
-    <div class="mb-8">
-    <input class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-[100%] p-4 h-30 w-30" 
-    placeholder="    Picture"
-    type="textarea"
-    name="Profile_picture">
-      <input 
-        class="text-2xl font-semibold text-[#077A7D] px-4" 
-        placeholder="Hello! *insert username*"
-        type ="text"
-        name ="Profile_name"
-      />
-      
-      
-    </div>
-    
-    <div class="grid grid-cols-3 gap-8">
+          <input
+            class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-full p-4 h-30 w-30"
+            placeholder="Picture"
+            type="textarea"
+            name="Profile_picture"
+          />
 
-      
-      <div class="col-span-1 flex flex-col gap-6">
+          <input
+            class="text-2xl font-semibold text-[#077A7D] px-4"
+            placeholder="Hello! *insert username*"
+            type="text"
+            name="Profile_name"
+          />
 
-        
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-32">
-          <textarea
-          name = "discription"
-            placeholder="Write your description..."
-            class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
-          ></textarea>
         </div>
 
+        <!-- Main Grid -->
+        <div class="grid grid-cols-2 gap-8">
 
-      </div>
-       <form action="/submit-interests" method="POST">
-  <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-40 overflow-y-auto">
-    <label class="block text-sm font-semibold text-[#077A7D] mb-2"> Interests </label>
-    <div class="flex flex-col gap-3">
-      <div class="px-2 flex items-center gap-2">
-        <input type="checkbox" name="interests" id="rap" class="border border-[#7AE2CF] rounded-md text-[#077A7D]" value="Rap" />
-        <label for="rap" class="text-sm text-[#077A7D]">Rap</label>
-      </div>
-      <div class="px-2 flex items-center gap-2">
-        <input type="checkbox" name="interests" id="rock" class="border border-[#7AE2CF] rounded-md text-[#077A7D]" value="rock" />
-        <label for="rock" class="text-sm text-[#077A7D]">rock</label>
-      </div>
-      <div class="px-2 flex items-center gap-2">
-        <input type="checkbox" name="interests" id="rnb" class="border border-[#7AE2CF] rounded-md text-[#077A7D]" value="Rnb" />
-        <label for="rnb" class="text-sm text-[#077A7D]">Rnb</label>
+          <!-- LEFT COLUMN -->
+          <div class="flex flex-col gap-6">
+
+            <!-- Description -->
+            <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-32">
+              <textarea
+                name="description"
+                placeholder="Write your description..."
+                class="w-full h-200 bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
+              ></textarea>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="col-span-1">
+
+            <!-- Discography -->
+            <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-[420px]">
+              <textarea
+                name="discography"
+                placeholder="Add your discography..."
+                class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
+              ></textarea>
+            </div>
+
+          </div>
+
         </div>
-      <div class="px-2 flex items-center gap-2">
-        <input type="checkbox" name="interests" id="pop" class="border border-[#7AE2CF] rounded-md text-[#077A7D]" value="POP" />
-        <label for="pop" class="text-sm text-[#077A7D]">POP</label>
-      </div>
-    </div>
-  </div>
-  
-</form>
-<button type="submit" class="mt-3 px-4 py-2 bg-[#077A7D] text-white rounded-md text-sm font-semibold">
-    Submit
-  </button>
 
-      
-      <div class="col-span-2">
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-[420px]">
-          <textarea
-          name = "discography"
-            placeholder="Add your discography..."
-            class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
-          ></textarea>
+        <!-- Save Button -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-[#077A7D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06202B] transition"
+          >
+            Save Changes
+          </button>
         </div>
-      </div>
 
-    </div>
-   
-    <div class="flex justify-end">
-      <button
-        type="submit"
-        class="bg-[#077A7D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06202B] transition"
-      >
-        Save Changes
-      </button>
-    </div>
+      </form>
 
-  </form>
-  
+      <!-- INTERESTS FORM -->
+      <form action="/" method="post" class="mt-10">
 
-</section>
+        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-40 overflow-y-auto">
 
+          <label class="block text-sm font-semibold text-[#077A7D] mb-2">
+            Interests
+          </label>
 
-    
-   
+          <div class="flex flex-col gap-3">
+
+            <div class="px-2 flex items-center gap-2">
+              <input type="checkbox" name="interests" id="rap" value="Rap"
+                class="border border-[#7AE2CF] rounded-md text-[#077A7D]" />
+              <label for="rap" class="text-sm text-[#077A7D]">Rap</label>
+            </div>
+
+            <div class="px-2 flex items-center gap-2">
+              <input type="checkbox" name="interests" id="rock" value="Rock"
+                class="border border-[#7AE2CF] rounded-md text-[#077A7D]" />
+              <label for="rock" class="text-sm text-[#077A7D]">Rock</label>
+            </div>
+
+            <div class="px-2 flex items-center gap-2">
+              <input type="checkbox" name="interests" id="rnb" value="Rnb"
+                class="border border-[#7AE2CF] rounded-md text-[#077A7D]" />
+              <label for="rnb" class="text-sm text-[#077A7D]">Rnb</label>
+            </div>
+
+            <div class="px-2 flex items-center gap-2">
+              <input type="checkbox" name="interests" id="pop" value="Pop"
+                class="border border-[#7AE2CF] rounded-md text-[#077A7D]" />
+              <label for="pop" class="text-sm text-[#077A7D]">Pop</label>
+            </div>
+
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="mt-4 bg-[#077A7D] text-white px-4 py-2 rounded-md text-sm font-semibold"
+        >
+          Submit
+        </button>
+
+      </form>
+
+    </section>
 
   </main>
 
