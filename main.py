@@ -167,6 +167,8 @@ def profile_settings():
 
         cursor = connection.cursor()
 
+        interests = request.form["name"]
+
         cursor.execute(
             """
             UPDATE `Profile`  
@@ -175,8 +177,10 @@ def profile_settings():
             `discography`= %s,
             `description` = %s
             WHERE `User_ID` = %s  
+            INSERT INTO `Interests` (`name`) VALUES (%s,)"
             """,
-            (Profile_picture, Profile_name, discography, description, current_user.id,) )
+            (Profile_picture, Profile_name, discography, description, interests, current_user.id ) )
+            
         connection.commit()
         connection.close()
         return redirect("/profile")
