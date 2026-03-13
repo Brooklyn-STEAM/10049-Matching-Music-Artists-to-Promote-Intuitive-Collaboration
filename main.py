@@ -146,7 +146,7 @@ def register():
 
 
 
-@app.route("/profile")
+@app.route("/profile")   
 @login_required
 def profile():
     connection = connect_db()
@@ -170,7 +170,7 @@ def profile_settings():
 
         discography = request.form["discography"]
 
-        description = request.form["discription"]
+        description = request.form["description"]
 
         file = request.files["Profile_picture"]
 
