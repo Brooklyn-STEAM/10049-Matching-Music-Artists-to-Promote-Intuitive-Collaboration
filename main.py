@@ -133,7 +133,6 @@ def register():
                     User_ID = cursor.lastrowid
                     cursor.execute(
                     'INSERT INTO `Profile` (`Profile_name`, `discography`, `description`,`Matches_ID`,`Profile_picture`,`User_ID` ) VALUES ("default","default","defualt",0,"default",%s)', (User_ID))
-                    
                 except pymysql.err.IntegrityError:
                     flash("Email already registered!")
                     connection.close()
@@ -164,17 +163,25 @@ def profile():
 @app.route('/profile_customization', methods=["GET","POST"])
 @login_required
 def profile_settings():
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT * FROM `Interest`')
+
+    result = cursor.fetchall()
+
+    connection.close()
+
     if request.method == 'POST':
 
         Profile_name = request.form["Profile_name"]
 
         discography = request.form["discography"]
 
-        description = request.form["discription"]
+        description = request.form["description"]
 
         file = request.files["Profile_picture"]
-
-        interest = request.form["name"]
 
         filename = None
 
@@ -189,25 +196,46 @@ def profile_settings():
 
         cursor = connection.cursor()
 
-        interests = request.form["name"]
-
-        cursor.execute(
-            """
-            UPDATE `Profile`  
-            SET `Profile_name` = %s,
-            `Profile_picture`= %s,
-            `discography`= %s,
-            `description` = %s,
-            WHERE `User_ID` = %s,
-            INSERT INTO `Interests` (`name`) VALUES (%s,)" 
-            """,
-            ( Profile_name, file, discography, description, current_user.id, interest,) )
+        cursor.execute("""
+        UPDATE `Profile`
+        SET `Profile_name` = %s,
+        `Profile_picture` = %s,
+        `discography` = %s,
+        `description` = %s
+        WHERE `User_ID` = %s
+        """, (Profile_name, filename, discography, description, current_user.id))
         connection.commit()
         connection.close()
-        return redirect("/profile")
-    return render_template("profile_customization.html.jinja")
+        
+    return render_template("profile_customization.html.jinja", Interest = result)
 
+@app.route('/interest', methods=["GET", "POST"])
+@login_required
+def interest_form():
+    if request.method == 'POST':
 
+        interests = request.form.getlist("interest")  # gets all checked boxes
+
+        connection = connect_db()
+        cursor = connection.cursor()
+
+        # Optional: remove old interests first so they don't duplicate
+        cursor.execute("""
+            DELETE FROM `User_Interest`
+            WHERE `User_ID` = %s
+        """, (current_user.id,))
+
+        # Insert each selected interest
+        for interest_id in interests:
+            cursor.execute("""
+                INSERT INTO `User_Interest` (`Interest_ID`, `User_ID`)
+                VALUES (%s, %s)
+            """, (interest_id, current_user.id))
+
+        connection.commit()
+        connection.close()
+
+    return redirect("/profile")
 
 
 

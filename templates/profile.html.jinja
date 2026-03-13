@@ -58,8 +58,8 @@
 
       <!-- Interests Section -->
       <div class="grid grid-cols-2 gap-10 max-w-md mx-auto">
-
-        <div class="px-6 py-3 
+        {%for x in Interest%}
+          <div class="px-6 py-3 
                     bg-[#F5EEDD] 
                     border border-[#06202B] 
                     rounded-xl 
@@ -67,41 +67,10 @@
                     hover:bg-[#077A7D] 
                     hover:text-white 
                     transition duration-300">
-          #music
-        </div>
-
-        <div class="px-6 py-3 
-                    bg-[#F5EEDD] 
-                    border border-[#06202B] 
-                    rounded-xl 
-                    text-center 
-                    hover:bg-[#077A7D] 
-                    hover:text-white 
-                    transition duration-300">
-          #production
-        </div>
-
-        <div class="px-6 py-3 
-                    bg-[#F5EEDD] 
-                    border border-[#06202B] 
-                    rounded-xl 
-                    text-center 
-                    hover:bg-[#077A7D] 
-                    hover:text-white 
-                    transition duration-300">
-          #songwriting
-        </div>
-
-        <div class="px-6 py-3 
-                    bg-[#F5EEDD] 
-                    border border-[#06202B] 
-                    rounded-xl 
-                    text-center 
-                    hover:bg-[#077A7D] 
-                    hover:text-white 
-                    transition duration-300">
-          #collaboration
-        </div>
+          {{x['name']}}
+          </div>
+        {%endfor%}
+        
 
       </div>
 
