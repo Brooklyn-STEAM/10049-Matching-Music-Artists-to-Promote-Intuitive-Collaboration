@@ -242,4 +242,21 @@ def interest_form():
 @app.route("/matching")
 
 def matching():
-    return render_template("matching.html.jinja")
+
+    connection = connect_db()
+
+    cursor = connection.cursor()
+    cursor.execute("""
+                   SELECT * FROM `User_Interest`
+                   JOIN `User_Interest` ON `User`.`User_ID` = `User_Interest`.`User_ID`
+                   JOIN `User` ON `Profile`.`User_ID` = `User`.`User_ID`
+                   WHERE `User_ID` = %s
+                   GROUP BY `User_Interest`.`ID`;
+                   """, (current_user.id,))
+    result = cursor.fetchall()
+    cursor.execute("SELECT * FROM ``User_Interest")
+    result = cursor.fetchall()
+
+    connection.close()
+      
+    return render_template("matching.html.jinja", User_Interest = result)
