@@ -16,14 +16,49 @@
      {% include "navbar.html.jinja"%}
 
         <!-- Main Content -->
-        <main class="flex-1 flex items-start justify-center pt-28">
-            <div class="w-200 h-[800px] rounded-3xl bg-gradient-to-br from-[#F5EEDD] to-[#06202B] shadow-xl place-content-center">
-                <h1 class="text-3xl font-bold mb-4">Matching Page</h1>
-                <p class="text-lg">This is where the matching content will go.</p>
-            </div>
-        </main>
+       <!-- Main Content -->
+<main class="flex-1 flex items-start justify-center pt-28">
+
+  <div class="w-[420px] rounded-3xl overflow-hidden shadow-2xl bg-white">
+
+    <!-- Profile Image -->
+    <div class="w-full h-[320px] overflow-hidden">
+      <img 
+        src="/static/profile.jpg"
+        alt="Profile picture"
+        class="w-full h-full object-cover"
+      >
+    </div>
+
+    <!-- Profile Info -->
+    <div class="p-6">
+
+      <!-- Name + Age -->
+      <h2 class="text-2xl font-bold mb-4">{{current_user.name}}</h2>
+
+      <hr class="mb-4">
+
+      <!-- Quote -->
+      <p class="italic text-gray-700 mb-4">
+        "Forget safety. Live where you fear to live. Destroy your reputation. Be notorious." – Rumi
+      </p>
+
+      <!-- Bio -->
+      <p class="text-gray-700">
+        I'm into meditation, self-inquiry, getting lost on dirt roads and trail runs,
+        and can't wait to meet you.
+      </p>
+
+    </div>
+
+  </div>
+
+</main>
+
 
     </div> 
+
+    
 <br>
 <br>
 <br>
