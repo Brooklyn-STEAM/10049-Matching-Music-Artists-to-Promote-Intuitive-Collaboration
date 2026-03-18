@@ -240,23 +240,30 @@ def interest_form():
 
 
 @app.route("/matching")
-
+@login_required
 def matching():
-
     connection = connect_db()
-
     cursor = connection.cursor()
+    
+    # Query to get all user interests and join with Profile and User tables
     cursor.execute("""
-                   SELECT * FROM `User_Interest`
-                   JOIN `User_Interest` ON `User`.`User_ID` = `User_Interest`.`User_ID`
-                   JOIN `User` ON `Profile`.`User_ID` = `User`.`User_ID`
-                   WHERE `User_ID` = %s
-                   GROUP BY `User_Interest`.`ID`;
-                   """, (current_user.id,))
+        SELECT * 
+        FROM `User_Interest`
+        JOIN `Profile` ON `User_Interest`.`User_ID` = `Profile`.`User_ID`
+        JOIN `User` ON `Profile`.`User_ID` = `User`.`User_ID`
+    """)
     result = cursor.fetchall()
-    cursor.execute("SELECT * FROM ``User_Interest")
-    result = cursor.fetchall()
-
+    
+    # Query to get the current user's interests
+    cursor.execute("""
+        SELECT 
+            `User_Interest`.`User_ID`,
+            `User_Interest`.`interest_ID`
+        FROM `User_Interest`
+        WHERE `User_Interest`.`User_ID` = %s
+    """, (current_user.id,))
+    
+    current_user_interests = cursor.fetchall()
     connection.close()
-      
-    return render_template("matching.html.jinja", User_Interest = result)
+    
+    return render_template("matching.html.jinja", result=result, current_user_interests=current_user_interests)
