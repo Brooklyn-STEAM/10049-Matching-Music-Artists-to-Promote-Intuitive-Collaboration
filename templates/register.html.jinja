@@ -7,19 +7,14 @@
   </head>
   <body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
 
-  {% include "navbar.html.jinja"%}
-
-
-
-
-
+  {% include "components/navbar.html.jinja"%}
 
 
 {% for message in get_flashed_messages() %}
 <li>{{message}}</li>
 {%endfor%}
 
- <main class="flex-1 flex items-start justify-center pt-28">
+ <main class="flex-1 flex items-start justify-center pt-28 mb-24">
 <div class="w-150 h-[430px] rounded-3xl 
                       bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
                       shadow-xl place-content-center">
@@ -51,5 +46,7 @@
  
 
     </main>
+    {% include "components/footer.html.jinja" %}
   </body>
+  
 </html>
