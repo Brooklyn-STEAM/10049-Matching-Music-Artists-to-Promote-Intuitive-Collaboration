@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Backstage</title>
+</head>
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
+{% include "components/navbar.html.jinja"%}
+
+<h1 class=" text-center font-semibold text-4xl pt-6">Collaborations</h1>
+<main class= "flex justify-center">
+
+    <div class ="pt-6 grid grid-cols-2 gap-4">
+        
+        <div class="col-1">
+            <h2>Invites</h2>
+            <div class="w-full h-[305px] rounded-3xl 
+                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
+                      shadow-xl place-content-center"></div>
+        </div>
+
+
+        <div class="col-2">
+            <h2>Collabs</h2>
+            <div class="w-full h-[305px] rounded-3xl 
+                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
+                      shadow-xl place-content-center">
+                      
+                      </div>
+        </div>
+    </div>
+</main>
+{% include "components/footer.html.jinja" %}
+</body>
+

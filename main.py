@@ -267,3 +267,8 @@ def matching():
     connection.close()
     
     return render_template("matching.html.jinja", result=result, current_user_interests=current_user_interests)
+@app.route('/collaborate')
+@login_required
+def collaborate():
+    print("hello")
+    return render_template("collaborate.html.jinja")
