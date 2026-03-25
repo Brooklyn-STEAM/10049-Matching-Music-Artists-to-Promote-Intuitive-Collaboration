@@ -291,6 +291,7 @@ def matching():
     # Get the 'index' from the URL (e.g., /matching?index=1). Default to 0.
     current_index = request.args.get('index', default=0, type=int)
     
+  
     # Select only the specific profile for this index
     display_profile = None
     if 0 <= current_index < len(profiles_in_feed):
