@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 
+
 UPLOAD_FOLDER = "static/uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
@@ -245,28 +246,65 @@ def matching():
     connection = connect_db()
     cursor = connection.cursor()
     
-    # Query to get all user interests and join with Profile and User tables
-    cursor.execute("""
-        SELECT * 
-        FROM `User_Interest`
-        JOIN `Profile` ON `User_Interest`.`User_ID` = `Profile`.`User_ID`
-        JOIN `User` ON `Profile`.`User_ID` = `User`.`User_ID`
-    """)
-    result = cursor.fetchall()
-    
-    # Query to get the current user's interests
+    # 1. Fetch all potential matches (Everyone except the current user)
+    # Joining tables so we have Profile and User data ready for the frontend
     cursor.execute("""
         SELECT 
-            `User_Interest`.`User_ID`,
-            `User_Interest`.`interest_ID`
-        FROM `User_Interest`
-        WHERE `User_Interest`.`User_ID` = %s
+            User.User_ID, 
+            User.name, 
+            Profile.Profile_name, 
+            Profile.description, 
+            Profile.discography, 
+            Profile.Profile_picture,
+            User_Interest.interest_ID
+        FROM User_Interest
+        JOIN Profile ON User_Interest.User_ID = Profile.User_ID
+        JOIN User ON Profile.User_ID = User.User_ID
+        WHERE User.User_ID != %s
     """, (current_user.id,))
+    all_potential_rows = cursor.fetchall()
     
-    current_user_interests = cursor.fetchall()
+    # 2. Fetch the current user's interests
+    cursor.execute("SELECT interest_ID FROM User_Interest WHERE User_ID = %s", (current_user.id,))
+    raw_my_interests = cursor.fetchall()
     connection.close()
+
+    # FIX 1: Use lowercase 'interest_ID' to match your SELECT above
+    my_interest_ids = [int(row['interest_ID']) for row in raw_my_interests]
+
+    profiles_in_feed = []
+    seen_user_ids = set()
+
+    for row in all_potential_rows:
+        # FIX 2: Again, use the key that matches your big SELECT statement
+        # Using .get() is safer as it returns None instead of crashing
+        val = row.get('interest_ID')
+        
+        if val is not None:
+            current_row_interest = int(val)
+            if current_row_interest in my_interest_ids:
+                if row['User_ID'] not in seen_user_ids:
+                    profiles_in_feed.append(row)
+                    seen_user_ids.add(row['User_ID'])
+
+    # 4. Pagination Logic
+    # Get the 'index' from the URL (e.g., /matching?index=1). Default to 0.
+    current_index = request.args.get('index', default=0, type=int)
     
-    return render_template("matching.html.jinja", result=result, current_user_interests=current_user_interests)
+  
+    # Select only the specific profile for this index
+    display_profile = None
+    if 0 <= current_index < len(profiles_in_feed):
+        display_profile = profiles_in_feed[current_index]
+
+    return render_template(
+        "matching.html.jinja", 
+        profile=display_profile, 
+        next_index=current_index + 1,
+        total_matches=len(profiles_in_feed)
+    )
+
+
 @app.route('/collaborate')
 @login_required
 def collaborate():
