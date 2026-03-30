@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>Backstage</title>
+  <title>Backstage - Matching</title>
 </head>
 
 <body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased"></body>
@@ -28,41 +28,60 @@
         alt="Profile picture"
         class="w-full h-full object-cover"
       >
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
+
+    {% include "components/navbar.html.jinja" %}
+
+    <main class="flex-1 flex items-start justify-center pt-28">
+
+  {% if profile %}
+    <div class="w-[420px] rounded-3xl overflow-hidden shadow-2xl bg-white">
+
+      <div class="w-full h-[320px] overflow-hidden">
+        <img 
+          src="{{ url_for('static', filename='uploads/' + profile.Profile_picture) if profile.Profile_picture != 'default' else '/static/profile.jpg' }}"
+          alt="Profile picture"
+          class="w-full h-full object-cover"
+        >
+      </div>
+      
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-4">{{ profile.name }}</h2>
+        
+        <hr class="mb-4">
+
+        <p class="italic text-gray-700 mb-4">
+          "{{ profile.description }}"
+        </p>
+
+        <p class="text-gray-700 mb-6">
+          {{ profile.discography }}
+        </p>
+
+        <div class="flex justify-center">
+            <a href="{{ url_for('matching', index=next_index) }}" 
+               class="bg-[#06202B] text-white px-10 py-3 rounded-full font-bold hover:opacity-90 transition-all">
+              Next Match →
+            </a>
+        </div>
+      </div>
     </div>
 
-    <!-- Profile Info -->
-    <div class="p-6">
-
-      <!-- Name + Age -->
-      <h2 class="text-2xl font-bold mb-4">{{current_user.name}}</h2>
-
-      <hr class="mb-4">
-
-      <!-- Quote -->
-      <p class="italic text-gray-700 mb-4">
-        "Forget safety. Live where you fear to live. Destroy your reputation. Be notorious." – Rumi
-      </p>
-
-      <!-- Bio -->
-      <p class="text-gray-700">
-        I'm into meditation, self-inquiry, getting lost on dirt roads and trail runs,
-        and can't wait to meet you.
-      </p>
-
+  {% else %}
+    <div class="text-center p-10 bg-white rounded-3xl shadow-xl">
+        <h2 class="text-2xl font-bold">No more matches!</h2>
+        <p class="text-gray-500 mt-2">Try adding more interests to see new people like Gon.</p>
+        <a href="/profile_customization" class="mt-4 inline-block text-blue-600 font-bold">Edit My Interests</a>
     </div>
-
-  </div>
+  {% endif %}
 
 </main>
 
+    <div class="pb-20"></div>
 
-    </div> 
-
-    
-<br>
-<br>
-<br>
+</body>
 </html>
+
 
 
     
