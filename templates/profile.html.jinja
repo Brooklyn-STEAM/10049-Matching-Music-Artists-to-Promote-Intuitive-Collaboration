@@ -4,90 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>BackStage | Profile</title>
+  <title>BackStage | {{ Profile["Profile_name"] }}</title>
 </head>
 
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen">
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen flex flex-col">
 
   {% include "components/navbar.html.jinja"%}
 
-  <!-- Header -->
-  <div class="flex items-center px-12 py-8">
+  <main class="flex-grow flex flex-col items-center px-6 pt-32 pb-20">
+    
+    <div class="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl border border-[#7AE2CF]/30 p-10 md:p-16">
+      
+      <div class="absolute -top-20 left-1/2 -translate-x-1/2">
+        <div class="w-40 h-40 rounded-full border-8 border-[#F5EEDD] bg-[#7AE2CF] overflow-hidden shadow-2xl flex items-center justify-center">
+            
+            {% if Profile['Profile_pictures'] %}
+              <img class="w-full h-full object-cover" 
+                   src="{{ Profile['Profile_pictures'] }}" 
+                   alt="{{ Profile['Profile_name'] }}"
+                   onerror="this.parentElement.innerHTML='<span class=\'text-white text-5xl font-black\'>{{ Profile['Profile_name'][0]|upper }}</span>'">
+            {% else %}
+              <span class="text-white text-5xl font-black uppercase">
+                {{ Profile["Profile_name"][0] }}
+              </span>
+            {% endif %}
 
-  <div class="w-40 h-40 rounded-full 
-              bg-[#7AE2CF] 
-              border-0 border-[#06202B] 
-              flex items-center justify-center 
-              font-semibold 
-              shadow-md
-              ml-auto">
-    <img class="h-50 item-center mx-auto mt-8" src="{{ Profile['Profile_pictures'] }}"> <br>
-  </div>
-
-</div>
-
-
-  <!-- Main Card -->
-  <div class="flex justify-center px-6 pb-20">
-
-    <div class="w-full max-w-4xl 
-                bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
-                rounded-[50px] 
-                border-0.5 border-[#06202B] 
-                shadow-2xl 
-                p-16">
-
-      <!-- Username -->
-      <h2 class="text-3xl font-bold text-center mb-12">
-        {{ Profile["Profile_name"] }}
-      </h2>
-
-      <!-- Description Box -->
-      <div class="max-w-xl mx-auto 
-                  bg-[#F5EEDD] 
-                  border-1 border-[#06202B] 
-                  rounded-3xl 
-                  p-8 
-                  text-center 
-                  mb-16 
-                  shadow-md">
-        <p class="text-lg leading-relaxed">
-          {{ Profile["description"] }}
-        </p>
+        </div>
       </div>
 
-      <!-- Interests Section -->
-      <div class="grid grid-cols-2 gap-10 max-w-md mx-auto">
-        {%for x in Interest%}
-          <div class="px-6 py-3 
-                    bg-[#F5EEDD] 
-                    border border-[#06202B] 
-                    rounded-xl 
-                    text-center 
-                    hover:bg-[#077A7D] 
-                    hover:text-white 
-                    transition duration-300">
-          {{x['name']}}
-          </div>
-        {%endfor%}
+      <div class="mt-16 text-center">
         
+        <h1 class="text-5xl font-black tracking-tighter text-[#06202B] uppercase mb-4">
+          {{ Profile["Profile_name"] }}
+        </h1>
+        <div class="h-1.5 w-20 bg-[#077A7D] mx-auto rounded-full mb-12"></div>
+
+        <div class="max-w-2xl mx-auto mb-16">
+          <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#077A7D] mb-4 block opacity-60">About the Artist</label>
+          <p class="text-xl leading-relaxed text-[#06202B]/90 italic font-medium">
+            "{{ Profile["description"] }}"
+          </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 max-w-2xl mx-auto mb-16">
+          {%for x in Interest%}
+            <div class="px-6 py-2 bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-full text-sm font-bold text-[#077A7D]">
+              {{x['name']}}
+            </div>
+          {%endfor%}
+        </div>
+
+        <div class="flex flex-col items-center gap-6">
+          <a href="/profile_customization" 
+             class="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-[#06202B] text-[#F5EEDD] font-bold text-lg hover:bg-[#077A7D] transition-all transform hover:-translate-y-1 shadow-xl">
+            <span>Edit Profile</span>
+          </a>
+          <p class="text-[10px] uppercase font-black tracking-widest opacity-30">BackStage Artist Profile</p>
+        </div>
 
       </div>
-
-      <!-- Edit Profile Button -->
-      <div class="flex justify-center mt-10">
-        <a href="/profile_customization" 
-           class="px-6 py-3 rounded-xl bg-[#077A7D] text-white font-medium 
-                  hover:bg-[#06202B] transition duration-300">
-          Edit Profile
-        </a>
-      </div>
-
     </div>
+  </main>
 
-  </div>
-{% include "components/footer.html.jinja" %}
+  {% include "components/footer.html.jinja" %}
+
 </body>
 </html>
-
-

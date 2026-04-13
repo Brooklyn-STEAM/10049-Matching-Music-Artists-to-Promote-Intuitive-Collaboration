@@ -3,122 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Tailwind -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
   <title>BackStage | Dashboard</title>
+  <style>
+    
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #F5EEDD; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #7AE2CF; border-radius: 10px; }
+  </style>
 </head>
 
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen">
 
   {% include "components/navbar.html.jinja"%}
 
-  <main class="max-w-7xl mx-auto px-12 py-10">
-
-    <section class="bg-white border-2 border-[#7AE2CF] rounded-2xl p-10">
-
-      <!-- PROFILE FORM -->
-      <form action="/profile_customization" method="post" class="space-y-8" enctype="multipart/form-data">
-
-        <!-- Profile Header -->
-        <div class="mb-8 flex items-center gap-6">
-
-          <input
-            class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-full p-4 h-30 w-30"
-            placeholder="Picture"
-            type="file"
-            name="Profile_picture"
+  <main class="max-w-6xl mx-auto px-6 py-12">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <section class="lg:col-span-2 bg-white rounded-3xl shadow-xl border border-[#7AE2CF]/20 overflow-hidden">
+        <div class="h-2 bg-[#077A7D]"></div>
+        
+        <form action="/profile_customization" method="post" class="p-8 md:p-10 space-y-8" enctype="multipart/form-data">
+          
+          <div class="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-[#F5EEDD]">
+            <div class="relative w-32 h-32 group">
+              <div class="w-full h-full rounded-full border-4 border-[#7AE2CF] bg-[#F5EEDD] flex items-center justify-center overflow-hidden">
+                <img id="preview" src="#" class="hidden w-full h-full object-cover">
+                <span id="upload-icon" class="text-3xl opacity-30">📸</span>
+              </div>
+              <input 
+                type="file" 
+                name="Profile_picture" 
+                onchange="showPreview(this)"
+                class="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </div>
             
-          />
+            <div class="flex-1 w-full text-center md:text-left">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#077A7D] mb-1 block">Stage Name</label>
+              <input
+                class="w-full text-3xl font-bold text-[#06202B] bg-transparent border-b-2 border-transparent focus:border-[#7AE2CF] outline-none transition-all"
+                placeholder="Hello! Insert Username"
+                type="text"
+                name="Profile_name"
+              />
+            </div>
+          </div>
 
-          <input
-            class="text-2xl font-semibold text-[#077A7D] px-4"
-            placeholder="Hello! *insert username*"
-            type="text"
-            name="Profile_name"
-          />
-
-        </div>
-
-        <!-- Main Grid -->
-        <div class="grid grid-cols-2 gap-8">
-
-          <!-- LEFT COLUMN -->
-          <div class="flex flex-col gap-6">
-
-            <!-- Description -->
-            <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-32">
+          <div class="space-y-6">
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#077A7D] mb-2 block">Artist Bio</label>
               <textarea
                 name="description"
                 placeholder="Write your description..."
-                class="w-full h-200 bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
+                class="w-full h-32 bg-[#F5EEDD] rounded-2xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B] transition-all resize-none"
               ></textarea>
             </div>
 
-          </div>
-
-          <!-- RIGHT COLUMN -->
-          <div class="col-span-1">
-
-            <!-- Discography -->
-            <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-[420px]">
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#077A7D] mb-2 block">Discography</label>
               <textarea
                 name="discography"
                 placeholder="Add your discography..."
-                class="w-full h-full bg-transparent resize-none outline-none text-[#06202B] text-lg placeholder-[#06202B]/50"
+                class="w-full h-64 bg-[#F5EEDD] rounded-2xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B] transition-all resize-none"
               ></textarea>
             </div>
-
           </div>
 
-        </div>
+          <div class="flex justify-end pt-4">
+            <button type="submit" class="bg-[#077A7D] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#06202B] transition-all shadow-lg active:scale-95">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </section>
 
-        <!-- Save Button -->
-        <div class="flex justify-end">
-          <button
-            type="submit"
-            class="bg-[#077A7D] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06202B] transition"
-          >
-            Save Changes
-          </button>
-        </div>
+      <section class="lg:col-span-1">
+        <div class="bg-[#06202B] rounded-3xl p-8 shadow-xl border border-[#7AE2CF]/30 h-fit sticky top-8">
+          <form action="/interest" method="post">
+            <h3 class="text-[#F5EEDD] text-xl font-bold mb-6 flex items-center gap-3">
+              <span class="w-1.5 h-6 bg-[#7AE2CF] rounded-full"></span>
+              Interests
+            </h3>
 
-      </form>
-
-      <!-- INTERESTS FORM -->
-      <form action="/interest" method="post" class="mt-10">
-
-        <div class="bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-xl p-4 h-40 overflow-y-auto">
-
-          <label class="block text-sm font-semibold text-[#077A7D] mb-2">
-            Interests
-          </label>
-
-          <div class="flex flex-col gap-3">
-        {%for x in Interest%}
-            <div class="px-2 flex items-center gap-2">
-              <input type="checkbox" name="interest" id="rap" value="{{x['interest_ID']}}"
-                class="border border-[#7AE2CF] rounded-md text-[#077A7D]" />
-              <label for="rap" class="text-sm text-[#077A7D]">{{x['name']}}</label>
+            <div class="bg-[#06202B]/50 h-96 overflow-y-auto custom-scroll pr-2 space-y-2 mb-8">
+              {%for x in Interest%}
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-[#7AE2CF]/10 hover:bg-[#7AE2CF]/10 transition-colors cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  name="interest" 
+                  value="{{x['interest_ID']}}"
+                  class="w-5 h-5 rounded border-2 border-[#7AE2CF] checked:bg-[#7AE2CF] appearance-none transition-all cursor-pointer" 
+                />
+                <span class="text-[#F5EEDD] text-sm group-hover:text-[#7AE2CF] transition-colors font-medium">
+                  {{x['name']}}
+                </span>
+              </label>
+              {%endfor%}
             </div>
-        {%endfor%}  
-          </div>
 
+            <button type="submit" class="w-full bg-[#7AE2CF] text-[#06202B] py-4 rounded-2xl font-black uppercase tracking-tighter hover:bg-white transition-all shadow-md">
+              Update Tags
+            </button>
+          </form>
         </div>
+      </section>
 
-        <button
-          type="submit"
-          class="mt-4 bg-[#077A7D] text-white px-4 py-2 rounded-md text-sm font-semibold"
-        >
-          Submit
-        </button>
-
-      </form>
-
-    </section>
-
+    </div>
   </main>
+
+  <script>
+    
+    function showPreview(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById('preview');
+          img.src = e.target.result;
+          img.classList.remove('hidden');
+          document.getElementById('upload-icon').classList.add('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
 
 </body>
 </html>
