@@ -3,34 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>Backstage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Backstage - Collaborations</title>
 </head>
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
-{% include "components/navbar.html.jinja"%}
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen flex flex-col">
 
-<h1 class=" text-center font-semibold text-4xl pt-6">Collaborations</h1>
-<main class= "flex justify-center">
+    {% include "components/navbar.html.jinja" %}
 
-        <div class="col-2 text-center">
-            <h2></h2>
-            <div class="w-full h-[305px] rounded-3xl 
-                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
-                      shadow-xl place-content-center">
-                        {% for user in Collabrations %}
-                            {{Profile.Profile_Picture}}
+    <main class="flex-1 container mx-auto px-4 py-12">
+        <h1 class="text-center font-bold text-4xl mb-10">Your Collaborators</h1>
 
-                            <h1>{{Profile.Profile_name}}</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            
+            {% if Collabrations %}
+                {% for artist in Collabrations %}
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 flex flex-col">
+                    
+                    <div class="h-24 bg-gradient-to-br from-[#7AE2CF] to-[#077A7D]"></div>
 
-                            <h1>{{User.email}}</h1>
-                        {% endfor%}
-                      </div>
+                    <div class="px-6 pb-6 flex flex-col items-center -mt-12">
+                        <div class="w-24 h-24 rounded-full border-4 border-white overflow-hidden shadow-md mb-4 bg-gray-200">
+                            <img 
+                                src="{{ url_for('static', filename='uploads/' + artist.Profile_picture) if artist.Profile_picture != 'default' else '/static/profile.jpg' }}" 
+                                class="w-full h-full object-cover"
+                                alt="Profile"
+                            >
+                        </div>
+                        
+                        <h2 class="font-bold text-xl">{{ artist.Profile_name }}</h2>
+                        <p class="text-[#077A7D] font-medium text-sm mb-4">{{ artist.email }}</p>
+                        
+                        <div class="w-full pt-4 border-t border-gray-50 flex justify-center">
+                            <a href="mailto:{{ artist.email }}" 
+                               class="bg-[#06202B] text-white px-6 py-2 rounded-full font-bold text-sm hover:opacity-90 transition-all">
+                                Send Message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-full text-center py-20 bg-white/50 rounded-3xl border-2 border-dashed border-gray-300">
+                    <p class="text-gray-500 font-medium">No collaborations yet.</p>
+                    <p class="text-sm text-gray-400">Keep matching to find your team!</p>
+                </div>
+            {% endif %}
+
         </div>
-         
-    </div>
-</main>
-<div class = "sticky bottum-0">
-    {% include "components/footer.html.jinja" %}
-</div>
-</body>
+    </main>
 
+    {% include "components/footer.html.jinja" %}
+
+</body>
+</html>
