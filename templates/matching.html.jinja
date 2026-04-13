@@ -30,7 +30,7 @@
       >
 <body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
 
-    {% include "components/navbar.html.jinja" %}
+    {% include "components/navbar.html.jinja"%}
 
     <main class="flex-1 flex items-start justify-center pt-28">
 
@@ -58,11 +58,18 @@
           {{ profile.discography }}
         </p>
 
-        <div class="flex justify-center">
+        <div class="grid grid-cols-2 gap-4 items-center">
             <a href="{{ url_for('matching', index=next_index) }}" 
-               class="bg-[#06202B] text-white px-10 py-3 rounded-full font-bold hover:opacity-90 transition-all">
-              Next Match →
+               class="bg-[#06202B] col-1 text-white text-center px-10 py-3 rounded-full font-bold hover:opacity-90 transition-all">
+              « Next
             </a>
+            <form class="col-2" action="/invites/{{profile.User_ID}}/send" method="post">
+              <button 
+                  type="submit"
+                  class="bg-[#077A7D] col-2 text-white text-center px-15 py-3 rounded-full font-bold hover:opacity-90 transition-all">
+                Invite 
+              </button>
+            </form>
         </div>
       </div>
     </div>

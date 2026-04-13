@@ -12,26 +12,25 @@
 <h1 class=" text-center font-semibold text-4xl pt-6">Collaborations</h1>
 <main class= "flex justify-center">
 
-    <div class ="pt-6 grid grid-cols-2 gap-4">
-        
-        <div class="col-1">
-            <h2>Invites</h2>
-            <div class="w-full h-[305px] rounded-3xl 
-                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
-                      shadow-xl place-content-center"></div>
-        </div>
-
-
-        <div class="col-2">
-            <h2>Collabs</h2>
+        <div class="col-2 text-center">
+            <h2></h2>
             <div class="w-full h-[305px] rounded-3xl 
                       bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
                       shadow-xl place-content-center">
-                      
+                        {% for user in Collabrations %}
+                            {{Profile.Profile_Picture}}
+
+                            <h1>{{Profile.Profile_name}}</h1>
+
+                            <h1>{{User.email}}</h1>
+                        {% endfor%}
                       </div>
         </div>
+         
     </div>
 </main>
-{% include "components/footer.html.jinja" %}
+<div class = "sticky bottum-0">
+    {% include "components/footer.html.jinja" %}
+</div>
 </body>
 
