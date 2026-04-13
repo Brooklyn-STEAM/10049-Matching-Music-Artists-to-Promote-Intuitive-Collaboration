@@ -3,48 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>Backstage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Backstage - Invites</title>
 </head>
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
-{% include "components/navbar.html.jinja"%}
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen flex flex-col">
 
-<h1 class=" text-center font-semibold text-4xl pt-6">Invites</h1>
-<main class= "flex justify-center">
+    {% include "components/navbar.html.jinja" %}
 
-    <div class="col-1 text-center">
-            <div class="w-full h-[305px] rounded-3xl 
-                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
-                      shadow-xl place-content-center">
-                        {% for users in Invites_sent_to_user%}
-                        <div class="bg-white justify-center gap-4 font-semibold border-2">
-                            {{user.Profile_Picture}}
+    <main class="flex-1 container mx-auto px-4 py-12">
+        <h1 class="text-center font-bold text-4xl mb-10">Collaboration Invites</h1>
 
-                            <h1>{{user.Profile_name}}</h1>
-
-                            <h1>{{user.email}}</h1>
-                            
-                            <form class="" action="decline">
-                                <button type="submit">
-                                    Decline
-                                </button>
-                            </form>
-                            <form class="" action="accept">
-                                <button type="submit">
-                                    Accept
-                                </button>
-                                {% if button == submit%}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" dur="0.2s" values="0.3;1"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" to="0"/></path></g></svg>
-                                {%endif%}
-                            </form>
+        <div class="max-w-2xl mx-auto space-y-4">
+            {% if Invites_sent_to_user %}
+                {% for invite in Invites_sent_to_user %}
+                <div class="bg-white rounded-2xl p-4 shadow-md flex items-center justify-between border border-gray-100 transition-all hover:shadow-lg">
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-[#077A7D]">
+                            <img 
+                                src="{{ url_for('static', filename='uploads/' + invite.Profile_picture) if invite.Profile_picture != 'default' else '/static/profile.jpg' }}" 
+                                class="w-full h-full object-cover"
+                                alt="Profile"
+                            >
                         </div>
-                        {%endfor%}
-                      </div>
+                        <div>
+                            <h2 class="font-bold text-lg leading-tight">{{ invite.Profile_name }}</h2>
+                            <p class="text-sm text-gray-500">{{ invite.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <form action="/invites/{{ invite.User_ID }}/decline" method="POST">
+                            <button type="submit" class="px-4 py-2 rounded-full border-2 border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50 transition-all">
+                                Decline
+                            </button>
+                        </form>
+
+                        <form action="/invites/{{ invite.User_ID }}/accept" method="POST">
+                            <button type="submit" class="px-6 py-2 rounded-full bg-[#077A7D] text-white font-bold text-sm hover:bg-[#055a5c] transition-all shadow-sm">
+                                Accept
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-20 bg-white/50 rounded-3xl border-2 border-dashed border-gray-300">
+                    <p class="text-gray-500 font-medium">No pending invites at the moment.</p>
+                    <a href="/matching" class="text-[#077A7D] font-bold mt-2 inline-block hover:underline">Go find collaborators →</a>
+                </div>
+            {% endif %}
         </div>
-         
-    </div>
-</main>
-<div class = "sticky bottum-0">
+    </main>
+
     {% include "components/footer.html.jinja" %}
-</div>
+
 </body>
+</html>
