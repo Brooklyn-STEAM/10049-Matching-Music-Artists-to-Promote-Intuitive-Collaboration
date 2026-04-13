@@ -3,7 +3,6 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 
-
 UPLOAD_FOLDER = "static/uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
@@ -304,9 +303,111 @@ def matching():
         total_matches=len(profiles_in_feed)
     )
 
-
-@app.route('/collaborate')
+#------------------------ View Invites ---------------------#
+@app.route('/invites', methods = ["GET","POST"])
 @login_required
-def collaborate():
-    print("hello")
-    return render_template("collaborate.html.jinja")
+def invites(User_ID):
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+            SELECT 
+                User.User_ID,
+                User.email,
+                Profile.Profile_name,
+                Profile.Profile_Picture
+            FROM User
+            JOIN Profile ON User.User_ID = Profile.User_ID
+            JOIN invites ON User.User_ID = invites.User_1
+            WHERE User.User_ID = %s
+                   """,(User_ID,))
+
+    cursor.execute("SELECT * FROM `invites` WHERE User_2 = %s ",(current_user.id,))
+
+    Invites_sent_to_user = cursor.fetchall()
+
+    connection.close()
+    
+    return render_template("invites.html.jinja", Invites_sent_to_user=Invites_sent_to_user,)
+
+#------------------------ Send Invite ---------------------#
+@app.route('/invites/<User_ID>/send', methods = ["GET","POST"])
+@login_required
+def invites_send(User_ID):
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s,%s) ",(current_user.id, User_ID))
+
+    connection.close()
+    
+    return render_template("invites.html.jinja")
+
+#------------------------ Acccept and decline ---------------------#
+@app.route('/invties/<User_ID>/decline&accept', methods = ["GET","POST"])
+@login_required
+def delcine(User_ID):
+    
+    connection = connect_db()
+
+    cursor = connection.cursor()
+    
+    cursor.execute("DELETE FROM `invites` WHERE `User_1` = %s AND `User_2` = %s ",(current_user.id,User_ID))
+
+    connection.close()
+
+    return render_template("invites.html.jinja")
+
+
+def accept(User_ID):
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT INTO `Matches` (`User_1`, `User_2`) VALUES (%s,%s) ",(current_user.id, User_ID))
+    
+    connection.close()
+
+    return redirect("invites.html.jinja")
+
+#------------------------ View Profiles you matched with ---------------------#
+@app.route('/collaborate/<User_ID>', methods = ["GET","POST"])
+@login_required
+def collaborate(User_ID):
+    
+    connection = connect_db()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+            SELECT
+                User.User_ID,
+                User.email,
+                Profile.Profile_name,
+                Profile.Profile_Picture
+            FROM User
+            JOIN Profile ON User.User_ID = Profile.User_ID
+            JOIN Matches ON User.User_ID = Matches.User_1
+            WHERE User.User_ID = %s
+                   """,(User_ID))
+    user_info = cursor.fetchone()
+    #current user sends invites to the other user
+
+    cursor.execute("SELECT * FROM `Matches` WHERE User_2 OR User_1 = %s",(current_user.id,))
+
+    Collabrations = cursor.fetchall()
+
+    connection.close()
+    return render_template("collaborate.html.jinja", user_info=user_info, Collabrations=Collabrations) 
+
+
+
+
+
+
+
+
+
+

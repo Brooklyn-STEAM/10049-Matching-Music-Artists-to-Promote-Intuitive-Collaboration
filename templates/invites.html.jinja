@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Backstage</title>
+</head>
+<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased">
+{% include "components/navbar.html.jinja"%}
+
+<h1 class=" text-center font-semibold text-4xl pt-6">Invites</h1>
+<main class= "flex justify-center">
+
+    <div class="col-1 text-center">
+            <div class="w-full h-[305px] rounded-3xl 
+                      bg-gradient-to-br from-[#7AE2CF] to-[#077A7D] 
+                      shadow-xl place-content-center">
+                        {% for users in Invites_sent_to_user%}
+                        <div class="bg-white justify-center gap-4 font-semibold border-2">
+                            {{user.Profile_Picture}}
+
+                            <h1>{{user.Profile_name}}</h1>
+
+                            <h1>{{user.email}}</h1>
+                            
+                            <form class="" action="decline">
+                                <button type="submit">
+                                    Decline
+                                </button>
+                            </form>
+                            <form class="" action="accept">
+                                <button type="submit">
+                                    Accept
+                                </button>
+                                {% if button == submit%}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 12c0 -4.97 4.03 -9 9 -9c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9Z"><animate fill="freeze" attributeName="fill-opacity" dur="0.2s" values="0.3;1"/></path><path stroke-dasharray="14" stroke-dashoffset="14" d="M8 12l3 3l5 -5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" to="0"/></path></g></svg>
+                                {%endif%}
+                            </form>
+                        </div>
+                        {%endfor%}
+                      </div>
+        </div>
+         
+    </div>
+</main>
+<div class = "sticky bottum-0">
+    {% include "components/footer.html.jinja" %}
+</div>
+</body>
