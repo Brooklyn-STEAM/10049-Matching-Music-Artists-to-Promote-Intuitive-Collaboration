@@ -8,7 +8,7 @@ from dynaconf import Dynaconf
 
 # --- Configuration ---
 UPLOAD_FOLDER = "static/uploads"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp3", "wav", "ogg"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -103,8 +103,8 @@ def register():
                 
                 # 2. Create blank Profile immediately to prevent UndefinedError later
                 cursor.execute(
-                    'INSERT INTO `Profile` (`Profile_name`, `discography`, `description`, `Matches_ID`, `Profile_picture`, `User_ID`) VALUES (%s, %s, %s, %s, %s, %s)',
-                    (name, "No discography yet", "No description yet", 0, "default", user_id)
+                    'INSERT INTO `Profile` (`Profile_name`,`description`, `Matches_ID`, `Profile_picture`, `User_ID`) VALUES (%s, %s, %s, %s, %s)',
+                    (name, "No description yet", 0, "default", user_id)
                 )
                 return redirect(url_for('login'))
             except pymysql.err.IntegrityError:
@@ -118,16 +118,21 @@ def register():
 def profile():
     connection = connect_db()
     cursor = connection.cursor()
+    
+    # 1. Fetch Profile Info
     cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (current_user.id,))
-    result = cursor.fetchone()
+    profile_data = cursor.fetchone()
+
+    # 2. Fetch Songs from the NEW table
+    cursor.execute('SELECT * FROM `Discography` WHERE `ID` = %s', (current_user.id,))
+    songs = cursor.fetchall()
+    
     connection.close()
 
-    # FIX: If profile is missing, don't crash. Send them to settings.
-    if not result:
-        flash("Please set up your profile first!")
+    if not profile_data:
         return redirect(url_for('profile_settings'))
         
-    return render_template("profile.html.jinja", Profile=result)
+    return render_template("profile.html.jinja", Profile=profile_data, Songs=songs)
 
 @app.route('/profile_customization', methods=["GET", "POST"])
 @login_required
@@ -176,22 +181,21 @@ def matching():
     connection = connect_db()
     cursor = connection.cursor()
     
-    # Get current user's interests
+    # 1. Get current user's interests
     cursor.execute("SELECT * FROM User_Interest WHERE User_ID = %s", (current_user.id,))
     my_interest_ids = [int(row.get('Interest_ID') or row.get('interest_ID')) for row in cursor.fetchall()]
 
-    # Get potential matches
+    # 2. Get potential matches (Note: I removed p.discography since you deleted that column)
     cursor.execute("""
-        SELECT u.User_ID, u.name, p.Profile_name, p.description, p.discography, p.Profile_picture, ui.interest_ID
+        SELECT u.User_ID, u.name, p.Profile_name, p.description, p.Profile_picture, ui.interest_ID
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
         LEFT JOIN User_Interest ui ON u.User_ID = ui.User_ID
         WHERE u.User_ID != %s
     """, (current_user.id,))
     all_rows = cursor.fetchall()
-    connection.close()
 
-    # Filter by interest
+    # 3. Filter by interest (The "Algorithm")
     profiles_in_feed = []
     seen = set()
     for row in all_rows:
@@ -201,10 +205,24 @@ def matching():
             seen.add(row['User_ID'])
 
     index = request.args.get('index', 0, type=int)
-    display = profiles_in_feed[index] if index < len(profiles_in_feed) else None
+    display = None
+    songs = [] # Initialize an empty list for songs
 
-    return render_template("matching.html.jinja", profile=display, next_index=index + 1)
+    # 4. FETCH THE MUSIC (Step 4)
+    if index < len(profiles_in_feed):
+        display = profiles_in_feed[index]
+        # Now that we know WHO we are looking at, get their songs
+        cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
+        songs = cursor.fetchall()
 
+    connection.close()
+
+    return render_template(
+        "matching.html.jinja", 
+        profile=display, 
+        songs=songs,      # Pass the tracks to the template
+        next_index=index + 1
+    )
 @app.route('/invites')
 @login_required
 def view_invites():
@@ -270,3 +288,27 @@ def collaborations():
 def logout():
     logout_user()
     return redirect("/")
+
+
+
+@app.route('/upload_song', methods=["POST"])
+@login_required
+def upload_song():
+    file = request.files.get("song_file")
+    song_name = request.form.get("song_name")
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"track_{current_user.id}_{file.filename}")
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+
+        connection = connect_db()
+        cursor = connection.cursor()
+        # Using the column names from your screenshot (ID = User ID, Song_name = filename)
+        cursor.execute("""
+            INSERT INTO `Discography` (`ID`, `Song_name`) 
+            VALUES (%s, %s)
+        """, (current_user.id, filename))
+        connection.close()
+        flash("Track uploaded successfully!")
+    
+    return redirect(url_for('profile'))
