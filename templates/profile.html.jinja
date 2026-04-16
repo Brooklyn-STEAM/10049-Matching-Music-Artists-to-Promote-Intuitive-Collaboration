@@ -1,76 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <title>BackStage | {{ Profile["Profile_name"] }}</title>
-</head>
-
-<body class="bg-[#F5EEDD] text-[#06202B] font-sans antialiased min-h-screen flex flex-col">
-
-  {% include "components/navbar.html.jinja"%}
-
-  <main class="flex-grow flex flex-col items-center px-6 pt-32 pb-20">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ Profile.Profile_name }} - Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Slow, smooth rotation for the vinyl record effect */
+        @keyframes slow-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: slow-spin 4s linear infinite;
+        }
+    </style>
     
-    <div class="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl border border-[#7AE2CF]/30 p-10 md:p-16">
-      
-      <div class="absolute -top-20 left-1/2 -translate-x-1/2">
-        <div class="w-40 h-40 rounded-full border-8 border-[#F5EEDD] bg-[#7AE2CF] overflow-hidden shadow-2xl flex items-center justify-center">
-            
-            {% if Profile['Profile_pictures'] %}
-              <img class="w-full h-full object-cover" 
-                   src="{{ Profile['Profile_pictures'] }}" 
-                   alt="{{ Profile['Profile_name'] }}"
-                   onerror="this.parentElement.innerHTML='<span class=\'text-white text-5xl font-black\'>{{ Profile['Profile_name'][0]|upper }}</span>'">
-            {% else %}
-              <span class="text-white text-5xl font-black uppercase">
-                {{ Profile["Profile_name"][0] }}
-              </span>
-            {% endif %}
+</head>
+<body class="bg-[#F5EEDD] min-h-screen">
 
-        </div>
-      </div>
+    {% include 'components/navbar.html.jinja' %}
 
-      <div class="mt-16 text-center">
+    <main class="max-w-4xl mx-auto px-6 py-12">
         
-        <h1 class="text-5xl font-black tracking-tighter text-[#06202B] uppercase mb-4">
-          {{ Profile["Profile_name"] }}
-        </h1>
-        <div class="h-1.5 w-20 bg-[#077A7D] mx-auto rounded-full mb-12"></div>
-
-        <div class="max-w-2xl mx-auto mb-16">
-          <label class="text-[10px] font-black uppercase tracking-[0.3em] text-[#077A7D] mb-4 block opacity-60">About the Artist</label>
-          <p class="text-xl leading-relaxed text-[#06202B]/90 italic font-medium">
-            "{{ Profile["description"] }}"
-          </p>
-        </div>
-
-        <div class="flex flex-wrap justify-center gap-4 max-w-2xl mx-auto mb-16">
-          {%for x in Interest%}
-            <div class="px-6 py-2 bg-[#F5EEDD] border-2 border-[#7AE2CF] rounded-full text-sm font-bold text-[#077A7D]">
-              {{x['name']}}
+        <div class="bg-white rounded-[3rem] p-8 shadow-xl flex flex-col md:flex-row items-center gap-8 border border-white/50 mb-12">
+            <div class="relative w-48 h-48">
+                <img src="{{ url_for('static', filename='uploads/' + Profile.Profile_picture) if Profile.Profile_picture != 'default' else '/static/default_user.jpg' }}" 
+                     class="w-full h-full object-cover rounded-[2.5rem] shadow-lg border-4 border-[#7AE2CF]">
             </div>
-          {%endfor%}
+
+            <div class="flex-1 text-center md:text-left">
+                <h1 class="text-4xl font-bold text-[#06202B] mb-2">{{ Profile.Profile_name }}</h1>
+                <p class="text-gray-600 leading-relaxed mb-6">{{ Profile.description }}</p>
+                <a href="{{ url_for('profile_settings') }}" 
+                   class="inline-block px-6 py-2 bg-[#077A7D] text-white font-bold rounded-xl hover:bg-[#06202B] transition shadow-md">
+                    Edit Profile & Tracks
+                </a>
+            </div>
         </div>
 
-        {% for item in Discography %}
-          <audio src="{{ item['Song_file'] }}" controls></audio>
-        {% endfor %}
+        <section>
+            <h2 class="text-2xl font-bold text-[#06202B] mb-6 flex items-center gap-3">
+                Discography 
+                <span class="text-sm font-normal bg-[#7AE2CF] text-[#06202B] px-3 py-1 rounded-full">
+                    {{ Songs|length }} Tracks
+                </span>
+            </h2>
 
-        <div class="flex flex-col items-center gap-6">
-          <a href="/profile_customization" 
-             class="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-[#06202B] text-[#F5EEDD] font-bold text-lg hover:bg-[#077A7D] transition-all transform hover:-translate-y-1 shadow-xl">
-            <span>Edit Profile</span>
-          </a>
-          <p class="text-[10px] uppercase font-black tracking-widest opacity-30">BackStage Artist Profile</p>
-        </div>
+            <div class="grid grid-cols-1 gap-6">
+                {% if Songs %}
+                    {% for song in Songs %}
+                    <div class="bg-white/80 backdrop-blur-md p-5 rounded-[2.5rem] flex items-center gap-6 border border-white shadow-sm hover:shadow-md transition">
+                        
+                        <div class="relative w-24 h-24 shrink-0">
+                            <div id="cd-{{ loop.index }}" 
+                                 class="w-full h-full rounded-full bg-gradient-to-tr from-[#06202B] to-gray-800 border-4 border-[#06202B] flex items-center justify-center relative shadow-lg">
+                                
+                                <div class="w-10 h-10 rounded-full bg-[#7AE2CF] border-2 border-[#06202B] overflow-hidden">
+                                    <img src="{{ url_for('static', filename='uploads/' + Profile.Profile_picture) if Profile.Profile_picture != 'default' else '/static/default_user.jpg' }}" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                                
+                                <div class="absolute w-2 h-2 rounded-full bg-white shadow-inner"></div>
+                            </div>
+                        </div>
 
-      </div>
-    </div>
-  </main>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-[#06202B] mb-2">{{ song.Song_name }}</h3>
+                            <audio onplay="toggleSpin('cd-{{ loop.index }}', true)" 
+                                   onpause="toggleSpin('cd-{{ loop.index }}', false)" 
+                                   onended="toggleSpin('cd-{{ loop.index }}', false)"
+                                   controls 
+                                   class="w-full h-10">
+                                <source src="{{ url_for('static', filename='uploads/' + song.Song_file) }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center p-12 border-2 border-dashed border-gray-300 rounded-[2.5rem]">
+                        <p class="text-gray-500 font-medium">No tracks found. Get some music on here!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
 
-  {% include "components/footer.html.jinja" %}
+    </main>
 
+    <script>
+        function toggleSpin(id, isPlaying) {
+            const cd = document.getElementById(id);
+            if (isPlaying) {
+                cd.classList.add('spinning');
+            } else {
+                cd.classList.remove('spinning');
+            }
+        }
+    </script>
+  <script>
+    function startCd(elementId) {
+        const cd = document.getElementById(elementId);
+        cd.classList.add('spinning');
+    }
+
+    function stopCd(elementId) {
+        const cd = document.getElementById(elementId);
+        cd.classList.remove('spinning');
+    }
+</script>
 </body>
 </html>
