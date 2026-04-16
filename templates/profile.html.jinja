@@ -54,6 +54,10 @@
           {%endfor%}
         </div>
 
+        {% for item in Discography %}
+          <audio src="{{ item['Song_file'] }}" controls></audio>
+        {% endfor %}
+
         <div class="flex flex-col items-center gap-6">
           <a href="/profile_customization" 
              class="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-[#06202B] text-[#F5EEDD] font-bold text-lg hover:bg-[#077A7D] transition-all transform hover:-translate-y-1 shadow-xl">
