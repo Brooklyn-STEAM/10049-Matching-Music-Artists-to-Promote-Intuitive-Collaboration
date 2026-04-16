@@ -291,7 +291,7 @@ def logout():
 
 
 
-@app.route('/upload_song', methods=["POST"])
+@app.route('/profile_customization/upload_song', methods=["POST"])
 @login_required
 def upload_song():
     file = request.files.get("song_file")
@@ -305,10 +305,12 @@ def upload_song():
         cursor = connection.cursor()
         # Using the column names from your screenshot (ID = User ID, Song_name = filename)
         cursor.execute("""
-            INSERT INTO `Discography` (`ID`, `Song_name`) 
-            VALUES (%s, %s)
-        """, (current_user.id, filename))
+            INSERT INTO `Discography` (`ID`, `Song_name`,`Song_file`) 
+            VALUES (%s, %s, %s)
+        """, (current_user.id, song_name, filename))
         connection.close()
         flash("Track uploaded successfully!")
+        #cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(current_user.id))
+       # User_Discography = []
     
     return redirect(url_for('profile'))
