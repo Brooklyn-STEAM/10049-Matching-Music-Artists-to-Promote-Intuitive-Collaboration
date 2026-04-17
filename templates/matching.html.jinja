@@ -35,12 +35,18 @@
             <p class="italic text-gray-700 mb-4">
               "{{ profile.description }}"
             </p>
-
-            <div class="mb-6">
-                <h3 class="text-xs font-bold text-gray-400 uppercase mb-1">Discography</h3>
-                <p class="text-gray-700 leading-relaxed">{{ profile.discography }}</p>
-            </div>
-
+            {% if songs%} 
+            <h3 class="text-xs font-bold text-gray-400 uppercase mb-1">Discography</h3>
+              {% for song in songs%}
+                <div class="mb-6 ">
+                    <p class="text-gray-700 leading-relaxed">{{ song.Song_name }}</p>
+                    <audio controls autoplay class="w-full h-5"  > 
+                      <source src="UPLOADFOLDER/Songs/{{song.Song_file}}" type="audio/mpeg">
+                    </audio>
+                </div>
+              {%endfor%}
+            {%endif%}
+              
             <div class="grid grid-cols-2 gap-4">
                 <form action="/invites/{{ profile.User_ID }}/send?index={{ next_index }}" method="POST">
                     <button type="submit" 
