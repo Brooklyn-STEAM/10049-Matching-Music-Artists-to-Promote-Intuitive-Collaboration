@@ -142,7 +142,6 @@ def profile_settings():
 
     if request.method == 'POST':
         profile_name = request.form["Profile_name"]
-        discography = request.form["discography"]
         description = request.form["description"]
         file = request.files.get("Profile_picture")
 
@@ -153,9 +152,9 @@ def profile_settings():
 
         cursor.execute("""
             UPDATE `Profile`
-            SET `Profile_name` = %s, `Profile_picture` = %s, `discography` = %s, `description` = %s
+            SET `Profile_name` = %s, `Profile_picture` = %s,`description` = %s
             WHERE `User_ID` = %s
-        """, (profile_name, filename, discography, description, current_user.id))
+        """, (profile_name, filename, description, current_user.id))
         return redirect(url_for('profile'))
 
     cursor.execute('SELECT * FROM `Interest`')
