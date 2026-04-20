@@ -8,7 +8,7 @@ from dynaconf import Dynaconf
 
 # --- Configuration ---
 UPLOAD_FOLDER = "static/uploads"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp3", "wav", "ogg"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp3", "wav", "ogg","webp"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -152,9 +152,12 @@ def profile_settings():
 
         cursor.execute("""
             UPDATE `Profile`
-            SET `Profile_name` = %s, `Profile_picture` = %s,`description` = %s
+            SET `Profile_name` = %s, `Profile_picture` = %s, `description` = %s
             WHERE `User_ID` = %s
         """, (profile_name, filename, description, current_user.id))
+        
+        flash("Profile picture/description has been updated successfully!") 
+        connection.close()
         return redirect(url_for('profile'))
 
     cursor.execute('SELECT * FROM `Interest`')
@@ -171,7 +174,9 @@ def interest_form():
     cursor.execute("DELETE FROM `User_Interest` WHERE `User_ID` = %s", (current_user.id,))
     for i_id in interests:
         cursor.execute("INSERT INTO `User_Interest` (`Interest_ID`, `User_ID`) VALUES (%s, %s)", (i_id, current_user.id))
+    
     connection.close()
+    flash("Your interests have been updated successfully!")
     return redirect(url_for('profile'))
 
 @app.route("/matching")
@@ -308,7 +313,7 @@ def upload_song():
             VALUES (%s, %s, %s)
         """, (current_user.id, song_name, filename))
         connection.close()
-        flash("Track uploaded successfully!")
+        flash(f"Uploaded '{song_name}' to your discography!")
         #cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(current_user.id))
        # User_Discography = []
     
