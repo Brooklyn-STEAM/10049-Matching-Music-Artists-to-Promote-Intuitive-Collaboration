@@ -22,6 +22,17 @@
     {% include 'components/navbar.html.jinja' %}
 
     <main class="max-w-4xl mx-auto px-6 py-12">
+     {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for message in messages %}
+        <div style="background-color: #7AE2CF; color: #06202B; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold;">
+          ✨ {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
         
         <div class="bg-white rounded-[3rem] p-8 shadow-xl flex flex-col md:flex-row items-center gap-8 border border-white/50 mb-12">
             <div class="relative w-48 h-48">
