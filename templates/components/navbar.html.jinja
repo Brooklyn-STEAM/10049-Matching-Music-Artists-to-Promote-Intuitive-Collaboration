@@ -1,5 +1,5 @@
 <header class="bg-gradient-to-r from-[#F5EEDD] to-[#7AE2CF] shadow-sm">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-6  flex items-center justify-between">
     
     <a href="/">
       <div class="flex items-center gap-2">
@@ -18,35 +18,15 @@
         </a>
 
       {% else %}
-        <a href="/profile" class="bg-[#077A7D] text-white rounded-xl font-semibold shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
-          Profile
+       
+        <a href="/matching" class="px-5 py-2 rounded-xl font-medium text-[#06202B] hover:bg-[#06202B]/10 transition">
+          Back
         </a>
         
-        <a href="/matching" class="bg-[#077A7D] text-white rounded-xl font-semibold shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
-          Matching
-        </a>
-
-        <a href="{{ url_for('collaborations') }}" class="bg-[#077A7D] text-white rounded-xl font-semibold flex items-center gap-2 shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
-          Collabs
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M16 17v2H2v-2s0-4 7-4s7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.4 3.4 0 0 0-1.93.59a5 5 0 0 1 0 5.82A3.4 3.4 0 0 0 15 11a3.5 3.5 0 0 0 0-7"/>
-          </svg>
-        </a>
-
-        <a href="/invites" class="bg-[#077A7D] text-white rounded-xl font-semibold flex items-center gap-2 shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
-          Invites
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-              <path d="M3 21v-1c0 -2.21 1.79 -4 4 -4h4c2.21 0 4 1.79 4 4v1"/>
-              <path d="M9 13c-1.66 0 -3 -1.34 -3 -3s1.34 -3 3 -3 3 1.34 3 3-1.34 3-3 3Z"/>
-              <path d="M15 6h6M18 3v6"/>
-            </g>
-          </svg>
-        </a>
-
         <a href="/logout" class="px-5 py-2 rounded-xl font-medium text-[#06202B] hover:bg-[#06202B]/10 transition">
           Logout
         </a>
+        
       {% endif %}
     </div>
 
