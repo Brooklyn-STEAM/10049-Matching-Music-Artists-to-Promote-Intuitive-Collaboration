@@ -8,7 +8,7 @@ from dynaconf import Dynaconf
 
 # --- Configuration ---
 UPLOAD_FOLDER = "static/uploads"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp3", "wav", "ogg","webp"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp3", "mp4", "wav", "ogg","webp"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -317,4 +317,14 @@ def upload_song():
         #cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(current_user.id))
        # User_Discography = []
     
+    return redirect(url_for('profile'))
+
+@app.route('/delete_song/<int:song_id>', methods=["POST"])
+@login_required
+def delete_song(song_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM `Discography` WHERE `Song_ID` = %s AND `ID` = %s", (song_id, current_user.id))
+    connection.close()
+    flash("Track successfully removed.")
     return redirect(url_for('profile'))

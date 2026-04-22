@@ -15,24 +15,24 @@
             animation: slow-spin 4s linear infinite;
         }
     </style>
-    
 </head>
 <body class="bg-[#F5EEDD] min-h-screen">
 
     {% include 'components/navbar.html.jinja' %}
 
     <main class="max-w-4xl mx-auto px-6 py-12">
-     {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for message in messages %}
-        <div style="background-color: #7AE2CF; color: #06202B; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold;">
-          ✨ {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div style="background-color: #7AE2CF; color: #06202B; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold;">
+                            ✨ {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         
         <div class="bg-white rounded-[3rem] p-8 shadow-xl flex flex-col md:flex-row items-center gap-8 border border-white/50 mb-12">
             <div class="relative w-48 h-48">
@@ -61,8 +61,17 @@
             <div class="grid grid-cols-1 gap-6">
                 {% if Songs %}
                     {% for song in Songs %}
-                    <div class="bg-white/80 backdrop-blur-md p-5 rounded-[2.5rem] flex items-center gap-6 border border-white shadow-sm hover:shadow-md transition">
+                    <div class="relative bg-white/80 backdrop-blur-md p-5 rounded-[2.5rem] flex items-center gap-6 border border-white shadow-sm hover:shadow-md transition">
                         
+                        <form action="{{ url_for('delete_song', song_id=song.Song_ID) }}" method="POST" class="absolute top-4 right-6 z-10">
+                            <button type="submit" 
+                                    onclick="return confirm('Remove this track?')"
+                                    class="text-gray-400 hover:text-red-500 font-black text-xl transition-colors p-1 cursor-pointer"
+                                    title="Delete Track">
+                                ×
+                            </button>
+                        </form>
+
                         <div class="relative w-24 h-24 shrink-0">
                             <div id="cd-{{ loop.index }}" 
                                  class="w-full h-full rounded-full bg-gradient-to-tr from-[#06202B] to-gray-800 border-4 border-[#06202B] flex items-center justify-center relative shadow-lg">
@@ -102,23 +111,14 @@
     <script>
         function toggleSpin(id, isPlaying) {
             const cd = document.getElementById(id);
-            if (isPlaying) {
-                cd.classList.add('spinning');
-            } else {
-                cd.classList.remove('spinning');
+            if (cd) {
+                if (isPlaying) {
+                    cd.classList.add('spinning');
+                } else {
+                    cd.classList.remove('spinning');
+                }
             }
         }
     </script>
-  <script>
-    function startCd(elementId) {
-        const cd = document.getElementById(elementId);
-        cd.classList.add('spinning');
-    }
-
-    function stopCd(elementId) {
-        const cd = document.getElementById(elementId);
-        cd.classList.remove('spinning');
-    }
-</script>
 </body>
 </html>
