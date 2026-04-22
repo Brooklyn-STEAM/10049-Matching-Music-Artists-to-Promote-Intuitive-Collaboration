@@ -11,7 +11,7 @@
 
     {% include "components/navbar.html.jinja" %}
 
-    <main class="flex-1 flex items-center justify-center py-12">
+    <main class="grid items-center gap-2 justify-center py-6 gr">
 
       {% if profile %}
         <div class="w-[420px] rounded-3xl overflow-hidden shadow-2xl bg-white transition-all hover:shadow-inner">
@@ -20,11 +20,11 @@
             <img 
               src="{{ url_for('static', filename='uploads/' + profile.Profile_picture) if profile.Profile_picture != 'default' else '/static/profile.jpg' }}"
               alt="{{ profile.name }}'s profile picture"
-              class="w-full h-full object-cover"
+              class="w-full h-full object-cover "
             >
           </div>
           
-          <div class="p-6">
+        <div class="p-4">
             <div class="flex justify-between items-start mb-2">
                 <h2 class="text-2xl font-bold">{{ profile.name }}</h2>
                 <span class="text-xs font-semibold bg-gray-100 px-2 py-1 rounded uppercase tracking-wider text-gray-500">Artist</span>
@@ -36,18 +36,21 @@
               "{{ profile.description }}"
             </p>
             {% if songs%} 
-            <h3 class="text-xs font-bold text-gray-400 uppercase mb-1">Discography</h3>
-              {% for song in songs%}
-                <div class="mb-6 ">
-                    <p class="text-gray-700 leading-relaxed">{{ song.Song_name }}</p>
-                    <audio controls autoplay class="w-full h-5"  > 
-                      <source src="UPLOADFOLDER/Songs/{{song.Song_file}}" type="audio/mpeg">
+            <h3 class="text-m font-bold text-gray-400 uppercase mb-1">Discography</h3>
+            <div class="border rounded overflow-y-auto custom-scroll h-20">
+            {% for song in songs%}
+                <div class="mb-6">
+                    <p class="text-center text-gray-700 leading-relaxed">{{ song.Song_name }}</p>
+                    <audio controls autoplay class="w-full h-10 p-1"  > 
+                      <source src="{{ url_for('static', filename='uploads/' + song.Song_file) }}" type="audio/mpeg">
                     </audio>
                 </div>
               {%endfor%}
+            </div>
+              
             {%endif%}
               
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 p-4">
                 <form action="/invites/{{ profile.User_ID }}/send?index={{ next_index }}" method="POST">
                     <button type="submit" 
                             class="w-full bg-[#077A7D] text-white py-3 rounded-full font-bold hover:bg-[#055a5c] transition-all shadow-md">
@@ -59,9 +62,55 @@
                    class="block w-full bg-[#06202B] text-white text-center py-3 rounded-full font-bold hover:opacity-90 transition-all shadow-md">
                   Next →
                 </a>
+                
             </div>
-          </div>
+            
+           
+          </div> 
+          
         </div>
+        
+        <div class=" bg-white px-4 py-2  rounded-3xl flex justify-evenly hover:shadow-inner">
+
+                  <div>
+                      <a href="{{ url_for('collaborations') }}" tooltip= "Collabs"class="bg-[#077A7D] text-white text-xs flex item-center justify-center rounded-xl font-semibold justify-center gap-2 shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200 ">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M16 17v2H2v-2s0-4 7-4s7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.4 3.4 0 0 0-1.93.59a5 5 0 0 1 0 5.82A3.4 3.4 0 0 0 15 11a3.5 3.5 0 0 0 0-7"/>
+                        </svg>
+                      </a>
+                      <p class="text-center text-[#077A7D]">
+                      Collabs
+                      </p>
+                  </div>
+                    
+                  <div>
+                    <a href="/invites" class="bg-[#077A7D] gap-1 text-white text-center text-xs rounded-xl font-semibold flex item-center justify-center gap-2 shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24">
+                          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            <path d="M3 21v-1c0 -2.21 1.79 -4 4 -4h4c2.21 0 4 1.79 4 4v1"/>
+                            <path d="M9 13c-1.66 0 -3 -1.34 -3 -3s1.34 -3 3 -3 3 1.34 3 3-1.34 3-3 3Z"/>
+                            <path d="M15 6h6M18 3v6"/>
+                          </g>
+                        </svg>
+                      
+                      </a>
+                      <p class="text-center text-[#077A7D]">
+                        Invites
+                      </p>
+                  </div>
+                  <div>
+                    <a href="/profile" class="bg-[#077A7D] text-white rounded-xl flex gap-2 font-semibold shadow-md px-4 py-2 hover:bg-[#06202B] hover:shadow-lg transition duration-200">
+                      
+                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-dasharray="28" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 21v-1c0 -3.31 2.69 -6 6 -6h4c3.31 0 6 2.69 6 6v1"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="28;0"/></path><path stroke-dashoffset="28" d="M12 11c-2.21 0 -4 -1.79 -4 -4c0 -2.21 1.79 -4 4 -4c2.21 0 4 1.79 4 4c0 2.21 -1.79 4 -4 4Z"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.4s" to="0"/></path></g></svg>
+                    </a>
+                    <p class="text-center text-[#077A7D]">
+                      Profile
+                    </p>
+                  </div>
+
+                    
+
+                </div>
 
       {% else %}
         <div class="text-center p-12 bg-white rounded-3xl shadow-xl max-w-sm mx-4">
