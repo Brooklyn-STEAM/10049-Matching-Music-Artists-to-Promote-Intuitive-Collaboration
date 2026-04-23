@@ -77,9 +77,12 @@
             {% endfor %}
             </div>
             {% endif %}
-              
-            
           </div> 
+
+          <div class="hidden">
+            <form id="invite-form" action="/invites/{{ profile.User_ID }}/send?index={{ next_index }}" method="POST"></form>
+            <a id="next-link" href="{{ url_for('matching', index=next_index) }}"></a>
+          </div>
         </div>
         
         <div class="bg-white px-4 py-2 rounded-3xl flex justify-evenly hover:shadow-inner mt-4 w-[420px]">
@@ -127,7 +130,6 @@
                 card.classList.remove('moving');
                 card.style.transform = `translateX(${ev.deltaX}px)`;
 
-                // Inverse Fade Logic
                 if (ev.deltaX > 0) { // Right (Invite)
                     inviteGuide.style.opacity = Math.max(0.3 - (ev.deltaX / 400), 0);
                     skipGuide.style.opacity = 0.3;
@@ -142,10 +144,12 @@
                 if (ev.deltaX > 150) { // Right = Invite
                     card.style.transform = 'translateX(1000px)';
                     allAudios.forEach(a => a.pause());
+                    // Triggers the hidden form
                     setTimeout(() => document.getElementById('invite-form').submit(), 200);
                 } else if (ev.deltaX < -150) { // Left = Skip
                     card.style.transform = 'translateX(-1000px)';
                     allAudios.forEach(a => a.pause());
+                    // Navigates to the hidden link
                     setTimeout(() => window.location.href = document.getElementById('next-link').href, 200);
                 } else {
                     card.style.transform = 'translateX(0px)';
@@ -155,7 +159,6 @@
             });
         }
 
-        // Only one audio plays at a time
         allAudios.forEach(audio => {
             audio.addEventListener('play', () => {
                 allAudios.forEach(other => { if (other !== audio) other.pause(); });
