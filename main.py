@@ -328,3 +328,13 @@ def delete_song(song_id):
     connection.close()
     flash("Track successfully removed.")
     return redirect(url_for('profile'))
+
+@app.route('/invites/<int:user_id>/send', methods=['POST'])
+def send_invite(user_id):
+    
+    
+    
+    flash("Invitation Sent!", "success") 
+    
+    next_index = request.args.get('index', 0)
+    return redirect(url_for('matching', index=next_index))

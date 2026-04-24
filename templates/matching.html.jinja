@@ -164,6 +164,32 @@
                 allAudios.forEach(other => { if (other !== audio) other.pause(); });
             });
         });
+        // Auto-hide notifications so the user can keep swiping
+document.addEventListener('DOMContentLoaded', () => {
+    const toast = document.getElementById('flash-toast');
+    if (toast) {
+        setTimeout(() => {
+            toast.style.transition = "all 0.5s ease";
+            toast.style.opacity = "0";
+            toast.style.transform = "translate(-50%, -20px)";
+            setTimeout(() => toast.remove(), 500);
+        }, 2500); // Shows for 2.5 seconds then vanishes
+    }
+});
     </script>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
+      {% for category, message in messages %}
+        <div class="bg-[#077A7D] text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 </body>
 </html>
