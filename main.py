@@ -123,7 +123,16 @@ def profile():
     cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (current_user.id,))
     profile_data = cursor.fetchone()
 
-    # 2. Fetch Songs from the NEW table
+    #2. Fetch Interest of user
+    cursor.execute("""
+        SELECT Interest.name, Interest.interest_ID
+        FROM User_Interest
+        JOIN Interest ON User_Interest.interest_ID = Interest.interest_ID
+        WHERE User_Interest.User_ID = %s
+    """, (current_user.id,))
+    user_interests = cursor.fetchall()
+
+    #4. Fetch Songs from the NEW table
     cursor.execute('SELECT * FROM `Discography` WHERE `ID` = %s', (current_user.id,))
     songs = cursor.fetchall()
     
@@ -132,7 +141,7 @@ def profile():
     if not profile_data:
         return redirect(url_for('profile_settings'))
         
-    return render_template("profile.html.jinja", Profile=profile_data, Songs=songs)
+    return render_template("profile.html.jinja", Profile=profile_data, Songs=songs, user_interests=user_interests )
 
 @app.route('/profile_customization', methods=["GET", "POST"])
 @login_required

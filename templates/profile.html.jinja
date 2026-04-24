@@ -49,7 +49,26 @@
                 </a>
             </div>
         </div>
+        <section class="mb-8">
 
+            <div class="flex gap-2 ">
+                <h2 class="text-2xl font-bold text-[#06202B] gap-3">
+                    Your Interests 
+                    <span class="text-sm font-normal bg-[#7AE2CF] text-[#06202B] px-3 py-1 rounded-full">
+                    {{ user_interests | length }} interests
+                    </span>
+                </h2> 
+            </div>
+             
+            
+             <div class="p-2 mt-4">
+            {% for row in user_interests %}
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#077A7D] text-white text-xl rounded-full shadow-lg">
+                    {{row.name}}
+                </div>
+            {%endfor%} 
+            </div>
+        </section>
         <section>
             <h2 class="text-2xl font-bold text-[#06202B] mb-6 flex items-center gap-3">
                 Discography 
@@ -68,7 +87,6 @@
                                     onclick="return confirm('Remove this track?')"
                                     class="text-gray-400 hover:text-red-500 font-black text-xl transition-colors p-1 cursor-pointer"
                                     title="Delete Track">
-                                ×
                             </button>
                         </form>
 
@@ -81,7 +99,8 @@
                                          class="w-full h-full object-cover">
                                 </div>
                                 
-                                <div class="absolute w-2 h-2 rounded-full bg-white shadow-inner"></div>
+                                <div class="absolute w-2 h-2 rounded-full bg-white shadow-inner">
+                                </div>
                             </div>
                         </div>
 
