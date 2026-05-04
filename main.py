@@ -241,6 +241,11 @@ def matching():
 def view_invites():
     connection = connect_db()
     cursor = connection.cursor()
+    
+    # IMPORTANT: Mark all invites as 'seen' (1) now that the user is on the page
+    cursor.execute("UPDATE invites SET seen = 1 WHERE User_2 = %s", (current_user.id,))
+    
+    # Fetch the info to display on the page
     cursor.execute("""
         SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture
         FROM User u
@@ -252,14 +257,17 @@ def view_invites():
     connection.close()
     return render_template("invites.html.jinja", Invites_sent_to_user=received)
 
-@app.route('/invites/<target_id>/send', methods=["POST"])
+@app.route('/invites/<int:target_id>/send', methods=["POST"])
 @login_required
 def invites_send(target_id):
     connection = connect_db()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s, %s)", (current_user.id, target_id))
+    # We include 'seen=0' so the recipient gets a notification dot
+    cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`, `seen`) VALUES (%s, %s, 0)", (current_user.id, target_id))
     connection.close()
+    flash("Invitation Sent!") 
     return redirect(url_for('matching', index=request.args.get('index', 0)))
+
 
 @app.route('/invites/<sender_id>/accept', methods=["POST"])
 @login_required
@@ -347,3 +355,15 @@ def send_invite(user_id):
     
     next_index = request.args.get('index', 0)
     return redirect(url_for('matching', index=next_index))
+
+@app.context_processor
+def inject_notifications():
+    if current_user.is_authenticated:
+        connection = connect_db()
+        cursor = connection.cursor()
+        # Look for any invites where 'seen' is 0 for the logged-in user
+        cursor.execute("SELECT COUNT(*) as count FROM invites WHERE User_2 = %s AND seen = 0", (current_user.id,))
+        result = cursor.fetchone()
+        connection.close()
+        return dict(unread_notifications=(result['count'] > 0))
+    return dict(unread_notifications=False)
