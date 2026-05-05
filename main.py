@@ -250,7 +250,7 @@ def view_invites():
     """, (current_user.id,))
     received = cursor.fetchall()
     connection.close()
-    return render_template("invites.html.jinja", Invites_sent_to_user=received)
+    return render_template("invites.html.jinja", Invites_sent_to_user=received, )
 
 @app.route('/invites/<target_id>/send', methods=["POST"])
 @login_required
@@ -258,8 +258,10 @@ def invites_send(target_id):
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s, %s)", (current_user.id, target_id))
+    cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(target_id))
+    songs = cursor.fetchall()
     connection.close()
-    return redirect(url_for('matching', index=request.args.get('index', 0)))
+    return redirect(url_for('matching', index=request.args.get('index', 0),Songs=songs))
 
 @app.route('/invites/<sender_id>/accept', methods=["POST"])
 @login_required
