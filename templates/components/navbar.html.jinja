@@ -1,21 +1,19 @@
 <header class="bg-gradient-to-r from-[#F5EEDD] to-[#7AE2CF] shadow-sm">
-  <div class="max-w-7xl mx-auto flex items-center justify-between">
-    
-    {%if not current_user.is_authenticated%}
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6"> {% if not current_user.is_authenticated %}
       <a href="/">
-      <div class="flex items-center gap-2">
-        <img src="/static/Backstage_No_Bg.png" alt="logo" class="h-20">
-        <h1 class="text-2xl font-semibold tracking-tight text-[#06202B]">BackStage</h1>
-      </div>
-    </a>
-    {%else%}
-    <a href="/matching">
-      <div class="flex items-center gap-2">
-        <img src="/static/Backstage_No_Bg.png" alt="logo" class="h-20">
-        <h1 class="text-2xl font-semibold tracking-tight text-[#06202B]">BackStage</h1>
-      </div>
-    </a>
-    {%endif%}
+        <div class="flex items-center gap-2">
+          <img src="/static/Backstage_No_Bg.png" alt="logo" class="h-20">
+          <h1 class="text-2xl font-semibold tracking-tight text-[#06202B]">BackStage</h1>
+        </div>
+      </a>
+    {% else %}
+      <a href="/matching">
+        <div class="flex items-center gap-2">
+          <img src="/static/Backstage_No_Bg.png" alt="logo" class="h-20">
+          <h1 class="text-2xl font-semibold tracking-tight text-[#06202B]">BackStage</h1>
+        </div>
+      </a>
+    {% endif %}
 
     <div class="flex items-center gap-4">
       {% if not current_user.is_authenticated %}
@@ -27,7 +25,20 @@
         </a>
 
       {% else %}
-       
+        
+        <a href="{{ url_for('view_invites') }}" class="relative p-2 text-[#06202B] hover:bg-[#06202B]/10 rounded-full transition" title="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6M9 17v1a3 3 0 0 0 6 0v-1"/>
+          </svg>
+
+          {% if unread_notifications %}
+          <span class="absolute top-2 right-2 flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-[#F6F2E5]"></span>
+          </span>
+          {% endif %}
+        </a>
+        
         <a href="/matching" class="px-5 py-2 rounded-xl font-medium text-[#06202B] hover:bg-[#06202B]/10 transition">
           Back
         </a>
