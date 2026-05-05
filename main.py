@@ -255,18 +255,19 @@ def view_invites():
     """, (current_user.id,))
     received = cursor.fetchall()
     connection.close()
-    return render_template("invites.html.jinja", Invites_sent_to_user=received)
+    return render_template("invites.html.jinja", Invites_sent_to_user=received, )
 
 @app.route('/invites/<int:target_id>/send', methods=["POST"])
 @login_required
 def invites_send(target_id):
     connection = connect_db()
     cursor = connection.cursor()
-    # We include 'seen=0' so the recipient gets a notification dot
-    cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`, `seen`) VALUES (%s, %s, 0)", (current_user.id, target_id))
+    cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s, %s)", (current_user.id, target_id))
+    cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(target_id))
+    songs = cursor.fetchall()
+    flash("Invitation Sent!")
     connection.close()
-    flash("Invitation Sent!") 
-    return redirect(url_for('matching', index=request.args.get('index', 0)))
+    return redirect(url_for('matching', index=request.args.get('index', 0),Songs=songs))
 
 
 @app.route('/invites/<sender_id>/accept', methods=["POST"])

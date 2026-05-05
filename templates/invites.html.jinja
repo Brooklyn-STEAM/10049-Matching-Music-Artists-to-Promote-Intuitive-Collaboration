@@ -31,7 +31,6 @@
                             <p class="text-sm text-gray-500">{{ invite.email }}</p>
                         </div>
                     </div>
-
                     <div class="flex gap-2">
                         <form action="/invites/{{ invite.User_ID }}/decline" method="POST">
                             <button type="submit" class="px-4 py-2 rounded-full border-2 border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50 transition-all">
@@ -44,8 +43,30 @@
                                 Accept
                             </button>
                         </form>
+                        
                     </div>
                 </div>
+                {% if Songs%}
+                     <div class = "relative inline-block group">
+
+                        <button class="bg-[#077A7D] text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700">
+                            Songs
+                        </button>
+                        <div class ="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                            {% for songs in Songs%}
+                                <div class="block">
+                                    <h3 class="text-sx font-semibold bg-[#077A7D] mb-2">{{ songs.Song_name }}</h3>
+                                    <audio 
+                                        controls 
+                                        class="w-150 h-10 bg-white">
+                                        <source src="{{ url_for('static', filename='uploads/' + songs.Song_file) }}" type="audio/mpeg">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                            {%endfor%}
+                        </div>
+                     </div>   
+                {%endif%}
                 {% endfor %}
             {% else %}
                 <div class="text-center py-20 bg-white/50 rounded-3xl border-2 border-dashed border-gray-300">
