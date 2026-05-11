@@ -242,10 +242,11 @@ def view_invites():
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("""
-        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture
+        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture, d.Song_file
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
         JOIN invites i ON u.User_ID = i.User_1
+        JOIN Discography d ON u.User_ID = d.ID
         WHERE i.User_2 = %s
     """, (current_user.id,))
     received = cursor.fetchall()
@@ -258,10 +259,7 @@ def invites_send(target_id):
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s, %s)", (current_user.id, target_id))
-    cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(target_id))
-    songs = cursor.fetchall()
-    connection.close()
-    return redirect(url_for('matching', index=request.args.get('index', 0),Songs=songs))
+    return redirect(url_for('matching', index=request.args.get('index', 0)))
 
 @app.route('/invites/<sender_id>/accept', methods=["POST"])
 @login_required
