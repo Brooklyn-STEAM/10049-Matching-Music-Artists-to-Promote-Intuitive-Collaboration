@@ -154,7 +154,11 @@ def profile_settings():
         description = request.form["description"]
         file = request.files.get("Profile_picture")
 
-        filename = "default"
+        # 1. Logic to keep the old picture if no new one is uploaded
+        cursor.execute("SELECT Profile_picture FROM Profile WHERE User_ID = %s", (current_user.id,))
+        current_pfp = cursor.fetchone()
+        filename = current_pfp['Profile_picture'] if current_pfp else "default"
+
         if file and allowed_file(file.filename):
             filename = secure_filename(f"user_{current_user.id}_{file.filename}")
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
@@ -165,14 +169,24 @@ def profile_settings():
             WHERE `User_ID` = %s
         """, (profile_name, filename, description, current_user.id))
         
-        flash("Profile picture/description has been updated successfully!") 
+        flash("Profile has been updated successfully!") 
         connection.close()
         return redirect(url_for('profile'))
 
+    # --- GET REQUEST LOGIC ---
+    
+    # 2. Fetch the current user's profile so the form isn't blank
+    cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (current_user.id,))
+    profile_data = cursor.fetchone()
+
+    # 3. Fetch all possible interests for the sidebar
     cursor.execute('SELECT * FROM `Interest`')
     interests = cursor.fetchall()
+    
     connection.close()
-    return render_template("profile_customization.html.jinja", Interest=interests)
+    
+    # Now profile_data is defined, so the template won't crash!
+    return render_template("profile_customization.html.jinja", Interest=interests, Profile=profile_data)
 
 @app.route('/interest', methods=["POST"])
 @login_required
