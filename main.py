@@ -2,9 +2,10 @@ from flask import Flask, render_template, redirect, abort, request, url_for, fla
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-import os
+import os 
 import pymysql
 from dynaconf import Dynaconf
+import random 
 
 # --- Configuration ---
 UPLOAD_FOLDER = "static/uploads"
@@ -234,6 +235,27 @@ def matching():
     index = request.args.get('index', 0, type=int)
     display = None
     songs = [] # Initialize an empty list for songs
+
+    
+    random.shuffle(profiles_in_feed)
+    index = request.args.get('index', 0, type=int)
+    if index >= len(profiles_in_feed):
+        index = 0
+    display = None
+    songs = []
+   
+   
+
+    if profiles_in_feed:
+        display = profiles_in_feed[index]
+        cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
+        songs = cursor.fetchall()
+
+    
+   
+
+
+
 
     # 4. FETCH THE MUSIC (Step 4)
     if index < len(profiles_in_feed):
