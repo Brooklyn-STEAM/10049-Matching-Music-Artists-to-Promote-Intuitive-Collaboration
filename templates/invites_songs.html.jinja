@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Backstage</title>
+</head>
+<body>
+ {% include "components/navbar.html.jinja" %}
+<div>
+  <h1>
+    {{Profile.name}}
+  </h1>
+   <div class="grid grid-cols-1 gap-6">
+    {% if Songs %}
+        {% for song in Songs %}
+        <div class="relative bg-white/80 backdrop-blur-md p-4 rounded-[2.5rem] flex items-center gap-6 border border-white shadow-sm hover:shadow-md transition">
+
+            <div class="relative w-24 h-24 shrink-0">
+                <div id="cd-{{ loop.index }}" 
+                      class="w-full h-full rounded-full bg-gradient-to-tr from-[#06202B] to-gray-800 border-4 border-[#06202B] flex items-center justify-center relative shadow-lg">
+                    
+                    <div class="w-10 h-10 rounded-full bg-[#7AE2CF] border-2 border-[#06202B] overflow-hidden">
+                        <img src="{{ url_for('static', filename='uploads/' + Profile.Profile_picture) if Profile.Profile_picture != 'default' else '/static/default_user.jpg' }}" 
+                              class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="absolute w-2 h-2 rounded-full bg-white shadow-inner">
+                    </div>
+                </div>
+            </div>
+</div>
+</div>
+   
+</body>

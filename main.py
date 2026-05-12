@@ -261,10 +261,11 @@ def view_invites():
     
     # Fetch the info to display on the page
     cursor.execute("""
-        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture
+        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture, d.Song_file
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
         JOIN invites i ON u.User_ID = i.User_1
+        JOIN Discography d ON u.User_ID = d.ID
         WHERE i.User_2 = %s
     """, (current_user.id,))
     received = cursor.fetchall()
