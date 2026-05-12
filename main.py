@@ -154,7 +154,11 @@ def profile_settings():
         description = request.form["description"]
         file = request.files.get("Profile_picture")
 
-        filename = "default"
+        # 1. Logic to keep the old picture if no new one is uploaded
+        cursor.execute("SELECT Profile_picture FROM Profile WHERE User_ID = %s", (current_user.id,))
+        current_pfp = cursor.fetchone()
+        filename = current_pfp['Profile_picture'] if current_pfp else "default"
+
         if file and allowed_file(file.filename):
             filename = secure_filename(f"user_{current_user.id}_{file.filename}")
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
@@ -165,14 +169,24 @@ def profile_settings():
             WHERE `User_ID` = %s
         """, (profile_name, filename, description, current_user.id))
         
-        flash("Profile picture/description has been updated successfully!") 
+        flash("Profile has been updated successfully!") 
         connection.close()
         return redirect(url_for('profile'))
 
+    # --- GET REQUEST LOGIC ---
+    
+    # 2. Fetch the current user's profile so the form isn't blank
+    cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (current_user.id,))
+    profile_data = cursor.fetchone()
+
+    # 3. Fetch all possible interests for the sidebar
     cursor.execute('SELECT * FROM `Interest`')
     interests = cursor.fetchall()
+    
     connection.close()
-    return render_template("profile_customization.html.jinja", Interest=interests)
+    
+    # Now profile_data is defined, so the template won't crash!
+    return render_template("profile_customization.html.jinja", Interest=interests, Profile=profile_data)
 
 @app.route('/interest', methods=["POST"])
 @login_required
@@ -241,6 +255,11 @@ def matching():
 def view_invites():
     connection = connect_db()
     cursor = connection.cursor()
+    
+    # IMPORTANT: Mark all invites as 'seen' (1) now that the user is on the page
+    cursor.execute("UPDATE invites SET seen = 1 WHERE User_2 = %s", (current_user.id,))
+    
+    # Fetch the info to display on the page
     cursor.execute("""
         SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture, d.Song_file
         FROM User u
@@ -253,13 +272,18 @@ def view_invites():
     connection.close()
     return render_template("invites.html.jinja", Invites_sent_to_user=received, )
 
-@app.route('/invites/<target_id>/send', methods=["POST"])
+@app.route('/invites/<int:target_id>/send', methods=["POST"])
 @login_required
 def invites_send(target_id):
     connection = connect_db()
     cursor = connection.cursor()
     cursor.execute("INSERT INTO `invites` (`User_1`, `User_2`) VALUES (%s, %s)", (current_user.id, target_id))
-    return redirect(url_for('matching', index=request.args.get('index', 0)))
+    cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(target_id))
+    songs = cursor.fetchall()
+    flash("Invitation Sent!")
+    connection.close()
+    return redirect(url_for('matching', index=request.args.get('index', 0),Songs=songs))
+
 
 @app.route('/invites/<sender_id>/accept', methods=["POST"])
 @login_required
@@ -347,3 +371,15 @@ def send_invite(user_id):
     
     next_index = request.args.get('index', 0)
     return redirect(url_for('matching', index=next_index))
+
+@app.context_processor
+def inject_notifications():
+    if current_user.is_authenticated:
+        connection = connect_db()
+        cursor = connection.cursor()
+        # Look for any invites where 'seen' is 0 for the logged-in user
+        cursor.execute("SELECT COUNT(*) as count FROM invites WHERE User_2 = %s AND seen = 0", (current_user.id,))
+        result = cursor.fetchone()
+        connection.close()
+        return dict(unread_notifications=(result['count'] > 0))
+    return dict(unread_notifications=False)

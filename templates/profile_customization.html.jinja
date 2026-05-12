@@ -6,7 +6,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>BackStage | Dashboard</title>
   <style>
-    
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: #F5EEDD; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #7AE2CF; border-radius: 10px; }
@@ -29,24 +28,21 @@
           <div class="flex flex-col md:flex-row items-center gap-8 pb-8 border-b border-[#F5EEDD]">
             <div class="relative w-32 h-32 group">
               <div class="w-full h-full rounded-full border-4 border-[#7AE2CF] bg-[#F5EEDD] flex items-center justify-center overflow-hidden">
-                <img id="preview" src="#" class="hidden w-full h-full object-cover">
-                <span id="upload-icon" class="text-3xl opacity-30">📸</span>
+                <img id="preview" 
+                     src="{{ url_for('static', filename='uploads/' + Profile.Profile_picture) if Profile.Profile_picture != 'default' else '#' }}" 
+                     class="{{ 'hidden' if Profile.Profile_picture == 'default' else '' }} w-full h-full object-cover">
+                <span id="upload-icon" class="{{ 'hidden' if Profile.Profile_picture != 'default' else '' }} text-3xl opacity-30">📸</span>
               </div>
-              <input 
-                type="file" 
-                name="Profile_picture" 
-                onchange="showPreview(this)"
-                class="absolute inset-0 opacity-0 cursor-pointer"
-              />
+              <input type="file" name="Profile_picture" onchange="showPreview(this)" class="absolute inset-0 opacity-0 cursor-pointer" />
             </div>
             
             <div class="flex-1 w-full text-center md:text-left">
               <label class="text-[10px] font-black uppercase tracking-widest text-[#077A7D] mb-1 block">Stage Name</label>
               <input
                 class="w-full text-3xl font-bold text-[#06202B] bg-transparent border-b-2 border-transparent focus:border-[#7AE2CF] outline-none transition-all"
-                placeholder="Hello! Insert Username"
                 type="text"
                 name="Profile_name"
+                value="{{ Profile.Profile_name }}"
               />
             </div>
           </div>
@@ -56,12 +52,9 @@
               <label class="text-[10px] font-black uppercase tracking-widest text-[#077A7D] mb-2 block">Artist Bio</label>
               <textarea
                 name="description"
-                placeholder="Write your description..."
                 class="w-full h-32 bg-[#F5EEDD] rounded-2xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B] transition-all resize-none"
-              ></textarea>
+              >{{ Profile.description }}</textarea>
             </div>
-
-            
           </div> 
           
           <div class="flex justify-end pt-4">
@@ -69,31 +62,29 @@
               Save Changes
             </button>
           </div>
-            
-          </form>
-          
-
-          
-        <form action="/profile_customization/upload_song" method="post" class="p-8 md:p-10 space-y-8" enctype="multipart/form-data">
-            <div>
-              <label class="text-[40px] font-black uppercase tracking-widest text-[#077A7D] mb-2 block">Discography</label>
-              <textarea
-                name="song_name"
-                placeholder="Song Name"
-                class="w-full h-64 bg-[#F5EEDD] rounded-2xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B] transition-all resize-none"
-              ></textarea>
-              <input
-                type="file"
-                name="song_file"
-                class="w-full h-64 bg-[#F5EEDD] rounded-2xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B] transition-all resize-none"
-              />
-            </div>
-            <div class="flex justify-end pt-4">
-              <button type="submit" class="bg-[#077A7D] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#06202B] transition-all shadow-lg active:scale-95">
-                Upload
-              </button>
-            </div>
         </form>
+          
+        <div class="border-t border-[#F5EEDD] p-8 md:p-10">
+            <form action="/profile_customization/upload_song" method="post" enctype="multipart/form-data" class="space-y-6">
+                <label class="text-[40px] font-black uppercase tracking-widest text-[#077A7D] mb-2 block">Discography</label>
+                <input
+                    type="text"
+                    name="song_name"
+                    placeholder="Song Name"
+                    class="w-full bg-[#F5EEDD] rounded-xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B]"
+                />
+                <input
+                    type="file"
+                    name="song_file"
+                    class="w-full bg-[#F5EEDD] rounded-xl p-4 outline-none focus:ring-2 focus:ring-[#7AE2CF] text-[#06202B]"
+                />
+                <div class="flex justify-end pt-4">
+                  <button type="submit" class="bg-[#077A7D] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#06202B] transition-all shadow-lg active:scale-95">
+                    Upload Track
+                  </button>
+                </div>
+            </form>
+        </div>
       </section>
 
       <section class="lg:col-span-1">
@@ -129,12 +120,12 @@
 
     </div>
   </main>
-  <section  class="flex justify-center">
+
+  <section class="flex justify-center">
         {%include "components/lilnav.html.jinja"%}
   </section>
 
   <script>
-    
     function showPreview(input) {
       if (input.files && input.files[0]) {
         var reader = new FileReader();
