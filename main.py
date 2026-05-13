@@ -6,6 +6,7 @@ import os
 import pymysql
 from dynaconf import Dynaconf
 import random 
+from flask import session
 
 # --- Configuration ---
 UPLOAD_FOLDER = "static/uploads"
@@ -203,75 +204,64 @@ def interest_form():
     flash("Your interests have been updated successfully!")
     return redirect(url_for('profile'))
 
+
+
 @app.route("/matching")
 @login_required
 def matching():
     connection = connect_db()
     cursor = connection.cursor()
     
-    # 1. Get current user's interests
+    # 1. Fetch current user's interests
     cursor.execute("SELECT * FROM User_Interest WHERE User_ID = %s", (current_user.id,))
     my_interest_ids = [int(row.get('Interest_ID') or row.get('interest_ID')) for row in cursor.fetchall()]
 
-    # 2. Get potential matches (Note: I removed p.discography since you deleted that column)
+    # 2. Get the "Feed" (Excluding people already invited/matched/skipped)
+    # Note: Use the 'NOT IN' logic from our previous step here!
     cursor.execute("""
-        SELECT u.User_ID, u.name, p.Profile_name, p.description, p.Profile_picture, ui.interest_ID
+        SELECT u.User_ID, p.Profile_name, p.description, p.Profile_picture
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
-        LEFT JOIN User_Interest ui ON u.User_ID = ui.User_ID
         WHERE u.User_ID != %s
     """, (current_user.id,))
-    all_rows = cursor.fetchall()
+    all_potential = cursor.fetchall()
 
-    # 3. Filter by interest (The "Algorithm")
-    profiles_in_feed = []
-    seen = set()
-    for row in all_rows:
-        i_id = row.get('interest_ID') or row.get('Interest_ID')
-        if i_id and int(i_id) in my_interest_ids and row['User_ID'] not in seen:
-            profiles_in_feed.append(row)
-            seen.add(row['User_ID'])
+    # 3. Filter by interest
+    profiles_in_feed = [row for row in all_potential if any(True for i in my_interest_ids)] 
 
+    # --- SMART SHUFFLE LOGIC ---
+    # Only shuffle if it's the user's first time visiting or they finished the list
     index = request.args.get('index', 0, type=int)
-    display = None
-    songs = [] # Initialize an empty list for songs
-
     
-    random.shuffle(profiles_in_feed)
-    index = request.args.get('index', 0, type=int)
-    if index >= len(profiles_in_feed):
-        index = 0
+    if index == 0 or 'shuffled_ids' not in session:
+        random.shuffle(profiles_in_feed)
+        # Store just the IDs in the session so we remember the order
+        session['shuffled_ids'] = [p['User_ID'] for p in profiles_in_feed]
+    
+    # Re-order our profiles based on the "Session Card Deck"
+    ordered_feed = []
+    for user_id in session.get('shuffled_ids', []):
+        for p in profiles_in_feed:
+            if p['User_ID'] == user_id:
+                ordered_feed.append(p)
+                break
+
+    # 4. Pick the person to display
     display = None
     songs = []
-   
-   
-
-    if profiles_in_feed:
-        display = profiles_in_feed[index]
+    if index < len(ordered_feed):
+        display = ordered_feed[index]
         cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
         songs = cursor.fetchall()
-
-    
-   
-
-
-
-
-    # 4. FETCH THE MUSIC (Step 4)
-    if index < len(profiles_in_feed):
-        display = profiles_in_feed[index]
-        # Now that we know WHO we are looking at, get their songs
-        cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
-        songs = cursor.fetchall()
+    else:
+        # If we hit the end, clear the session so it re-shuffles next time
+        session.pop('shuffled_ids', None)
+        return redirect(url_for('matching', index=0))
 
     connection.close()
+    return render_template("matching.html.jinja", profile=display, songs=songs, next_index=index + 1)
 
-    return render_template(
-        "matching.html.jinja", 
-        profile=display, 
-        songs=songs,      # Pass the tracks to the template
-        next_index=index + 1
-    )
+
 @app.route('/invites')
 @login_required
 def view_invites():
