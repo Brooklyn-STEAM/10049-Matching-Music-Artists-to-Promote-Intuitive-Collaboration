@@ -156,7 +156,7 @@ def profile_settings():
         description = request.form["description"]
         file = request.files.get("Profile_picture")
 
-        # 1. Logic to keep the old picture if no new one is uploaded
+        # Keep old picture if no new one is uploaded
         cursor.execute("SELECT Profile_picture FROM Profile WHERE User_ID = %s", (current_user.id,))
         current_pfp = cursor.fetchone()
         filename = current_pfp['Profile_picture'] if current_pfp else "default"
@@ -172,38 +172,39 @@ def profile_settings():
         """, (profile_name, filename, description, current_user.id))
         
         flash("Profile has been updated successfully!") 
+        connection.commit() # Make sure changes are saved
         connection.close()
         return redirect(url_for('profile'))
 
     # --- GET REQUEST LOGIC ---
     
-    # 2. Fetch the current user's profile so the form isn't blank
+    # 1. Fetch the current user's profile
     cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (current_user.id,))
     profile_data = cursor.fetchone()
 
-    # 3. Fetch all possible interests for the sidebar
+    # 2. Fetch all possible interests for the checkbox list
     cursor.execute('SELECT * FROM `Interest`')
     interests = cursor.fetchall()
+
+    # 3. THE FIX: Fetch the names of blacklisted users
+    # We JOIN the Dislikes table with the Profile table to get the human-readable names
+    cursor.execute("""
+        SELECT u.User_ID, p.Profile_name 
+        FROM Dislikes d
+        JOIN User u ON d.Target_ID = u.User_ID
+        JOIN Profile p ON u.User_ID = p.User_ID
+        WHERE d.User_ID = %s
+    """, (current_user.id,))
+    blacklisted_users = cursor.fetchall()
     
     connection.close()
     
-    # Now profile_data is defined, so the template won't crash!
-    return render_template("profile_customization.html.jinja", Interest=interests, Profile=profile_data)
-
-@app.route('/interest', methods=["POST"])
-@login_required
-def interest_form():
-    interests = request.form.getlist("interest")
-    connection = connect_db()
-    cursor = connection.cursor()
-    cursor.execute("DELETE FROM `User_Interest` WHERE `User_ID` = %s", (current_user.id,))
-    for i_id in interests:
-        cursor.execute("INSERT INTO `User_Interest` (`Interest_ID`, `User_ID`) VALUES (%s, %s)", (i_id, current_user.id))
-    
-    connection.close()
-    flash("Your interests have been updated successfully!")
-    return redirect(url_for('profile'))
-
+    return render_template(
+        "profile_customization.html.jinja", 
+        Interest=interests, 
+        Profile=profile_data, 
+        Blacklist=blacklisted_users  # This matches the loop in your template!
+    )
 
 
 @app.route("/matching")
@@ -213,40 +214,57 @@ def matching():
     cursor = connection.cursor()
     
     # 1. Fetch current user's interests
-    cursor.execute("SELECT * FROM User_Interest WHERE User_ID = %s", (current_user.id,))
-    my_interest_ids = [int(row.get('Interest_ID') or row.get('interest_ID')) for row in cursor.fetchall()]
+    cursor.execute("SELECT Interest_ID FROM User_Interest WHERE User_ID = %s", (current_user.id,))
+    my_interest_ids = [row['Interest_ID'] for row in cursor.fetchall()]
 
-    # 2. Get the "Feed" (Excluding people already invited/matched/skipped)
-    # Note: Use the 'NOT IN' logic from our previous step here!
+    # If the user has no interests, they can't match with anyone!
+    if not my_interest_ids:
+        connection.close()
+        return render_template("matching.html.jinja", profile=None, songs=[], next_index=0)
+
+    # 2. THE BIG FIX: Filter by Interest AND Exclude Invites/Matches all in one query
+    # We use 'DISTINCT' so if you share 3 interests with someone, they only show up once.
+   # 2. Get potential matches (Now including the Blacklist check)
     cursor.execute("""
-        SELECT u.User_ID, p.Profile_name, p.description, p.Profile_picture
+        SELECT DISTINCT u.User_ID, p.Profile_name, p.description, p.Profile_picture
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
-        WHERE u.User_ID != %s
-    """, (current_user.id,))
-    all_potential = cursor.fetchall()
+        JOIN User_Interest ui ON u.User_ID = ui.User_ID
+        WHERE u.User_ID != %s 
+        AND ui.Interest_ID IN %s
+        AND u.User_ID NOT IN (
+            SELECT User_2 FROM invites WHERE User_1 = %s
+            UNION
+            SELECT User_1 FROM invites WHERE User_2 = %s
+            UNION
+            SELECT User_1 FROM Matches WHERE User_2 = %s
+            UNION
+            SELECT User_2 FROM Matches WHERE User_1 = %s
+            UNION
+            -- NEW: Check the blacklist/dislikes table
+            SELECT Target_ID FROM Dislikes WHERE User_ID = %s
+        )
+    """, (current_user.id, tuple(my_interest_ids), current_user.id, current_user.id, current_user.id, current_user.id, current_user.id))
+    
+    profiles_in_feed = cursor.fetchall()
 
-    # 3. Filter by interest
-    profiles_in_feed = [row for row in all_potential if any(True for i in my_interest_ids)] 
-
-    # --- SMART SHUFFLE LOGIC ---
-    # Only shuffle if it's the user's first time visiting or they finished the list
+    # --- SHUFFLE LOGIC ---
     index = request.args.get('index', 0, type=int)
     
     if index == 0 or 'shuffled_ids' not in session:
         random.shuffle(profiles_in_feed)
-        # Store just the IDs in the session so we remember the order
         session['shuffled_ids'] = [p['User_ID'] for p in profiles_in_feed]
     
-    # Re-order our profiles based on the "Session Card Deck"
+    # Re-order based on the session deck
     ordered_feed = []
-    for user_id in session.get('shuffled_ids', []):
-        for p in profiles_in_feed:
-            if p['User_ID'] == user_id:
-                ordered_feed.append(p)
-                break
+    shuffled_ids = session.get('shuffled_ids', [])
+    # Re-map the full profile data to the shuffled ID list
+    for sid in shuffled_ids:
+        match = next((p for p in profiles_in_feed if p['User_ID'] == sid), None)
+        if match:
+            ordered_feed.append(match)
 
-    # 4. Pick the person to display
+    # 3. Pick the person to display
     display = None
     songs = []
     if index < len(ordered_feed):
@@ -254,11 +272,12 @@ def matching():
         cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
         songs = cursor.fetchall()
     else:
-        # If we hit the end, clear the session so it re-shuffles next time
-        session.pop('shuffled_ids', None)
-        return redirect(url_for('matching', index=0))
+        session.pop('shuffled_ids', None) # Clear when finished
+        # If they finished the list, but there's more people (or list is empty), reset
+        if index > 0:
+            return redirect(url_for('matching', index=0))
 
-    connection.close()
+    connection.close() # ONLY CLOSE AT THE VERY END
     return render_template("matching.html.jinja", profile=display, songs=songs, next_index=index + 1)
 
 
@@ -315,6 +334,24 @@ def decline_invite(sender_id):
     cursor.execute("DELETE FROM `invites` WHERE `User_1` = %s AND `User_2` = %s", (sender_id, current_user.id))
     connection.close()
     return redirect(url_for('view_invites'))
+
+
+@app.route('/dislike/<int:target_id>', methods=["POST"])
+@login_required
+def dislike_user(target_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("INSERT IGNORE INTO Dislikes (User_ID, Target_ID) VALUES (%s, %s)", 
+                       (current_user.id, target_id))
+        # Add the flash message here
+        flash("Artist added to Blacklist. You can manage this in settings.")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        connection.close()
+    
+    return redirect(url_for('matching', index=request.args.get('index', 0)))
 
 @app.route('/collaborate')
 @login_required
@@ -384,6 +421,9 @@ def send_invite(user_id):
     next_index = request.args.get('index', 0)
     return redirect(url_for('matching', index=next_index))
 
+
+
+
 @app.context_processor
 def inject_notifications():
     if current_user.is_authenticated:
@@ -395,3 +435,17 @@ def inject_notifications():
         connection.close()
         return dict(unread_notifications=(result['count'] > 0))
     return dict(unread_notifications=False)
+
+
+@app.route('/remove_blacklist/<int:target_id>', methods=["POST"])
+@login_required
+def remove_blacklist(target_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+    # Delete the connection between you and the person you disliked
+    cursor.execute("DELETE FROM Dislikes WHERE User_ID = %s AND Target_ID = %s", (current_user.id, target_id))
+    connection.close()
+    flash("Artist removed from Blacklist!")
+    return redirect(url_for('profile_settings'))
+
+
