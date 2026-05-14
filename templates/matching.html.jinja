@@ -12,6 +12,8 @@
       user-select: none;
       -webkit-user-drag: none;
       z-index: 10;
+      /* Ensure no default transitions interfere with manual panning */
+      transform: translateX(0) rotate(0deg); 
     }
     .moving {
       transition: transform 0.4s ease-out, opacity 0.3s ease-out !important;
@@ -45,18 +47,27 @@
     <main class="flex-1 flex flex-col items-center justify-center py-6 relative">
 
       {% if profile %}
-        <div id="tinder-card" class="swipe-container w-[420px] rounded-3xl overflow-hidden shadow-2xl bg-white transition-transform duration-75 ease-out cursor-grab active:cursor-grabbing relative">
+        <div id="tinder-card" class="swipe-container w-[420px] rounded-3xl overflow-hidden shadow-2xl bg-white cursor-grab active:cursor-grabbing relative">
 
-          <div class="w-full h-[320px] overflow-hidden">
+          <div class="w-full h-[320px] overflow-hidden relative">
             <img 
               src="{{ url_for('static', filename='uploads/' + profile.Profile_picture) if profile.Profile_picture != 'default' else '/static/profile.jpg' }}"
               class="w-full h-full object-cover pointer-events-none"
             >
+            
+            <button type="button" 
+                  onclick="if(confirm('This will remove this person from your current algorithm and put them in your Blacklist. You can add them back later in your profile settings.')) { document.getElementById('dislike-form').submit(); }"
+                  class="absolute top-4 right-4 bg-white/80 hover:bg-red-500 hover:text-white text-gray-800 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
           
           <div class="p-4">
             <div class="flex justify-between items-start mb-2">
-                <h2 class="text-2xl font-bold">{{ profile.name }}</h2>
+                <h2 class="text-2xl font-bold">{{ profile.Profile_name }}</h2>
                 <span class="text-xs font-semibold bg-gray-100 px-2 py-1 rounded uppercase tracking-wider text-gray-500">Artist</span>
             </div>
             
@@ -70,7 +81,7 @@
             {% for song in songs %}
                 <div class="mb-6 p-2 border-b last:border-0">
                     <p class="text-center text-gray-700 leading-relaxed text-sm mb-1">{{ song.Song_name }}</p>
-                    <audio controls class="profile-audio w-full h-10 p-1" {% if loop.first %} autoplay {% endif %}> 
+                    <audio controls class="profile-audio w-full h-10 p-1"> 
                       <source src="{{ url_for('static', filename='uploads/' + song.Song_file) }}" type="audio/mpeg">
                     </audio>
                 </div>
@@ -80,98 +91,109 @@
           </div> 
 
           <div class="hidden">
-            <form id="invite-form" action="/invites/{{ profile.User_ID }}/send?index={{ next_index }}" method="POST"></form>
+              <form id="invite-form" action="/invites/{{ profile.User_ID }}/send?index={{ next_index }}" method="POST"></form>
+    
+              <form id="dislike-form" action="/dislike/{{ profile.User_ID }}?index={{ next_index }}" method="POST"></form>
+    
             <a id="next-link" href="{{ url_for('matching', index=next_index) }}"></a>
           </div>
-        </div>
         
-       
       {% else %}
         <div class="text-center p-12 bg-white rounded-3xl shadow-xl">
             <h2 class="text-2xl font-bold">That's everyone!</h2>
-            <a href="{{ url_for('matching', index=0) }}" class="mt-4 block text-[#077A7D]">Start Over</a>
+            <p class="text-gray-500 mt-2">Check your Blacklist in settings if you want to see someone again.</p>
+            <a href="{{ url_for('matching', index=0) }}" class="mt-4 inline-block bg-[#077A7D] text-white px-6 py-2 rounded-full font-bold">Start Over</a>
         </div>
       {% endif %}
 
     </main>
 
-    <section  class="flex justify-center">
-        {%include "components/lilnav.html.jinja"%}
+    <section class="flex justify-center">
+        {% include "components/lilnav.html.jinja" %}
     </section>
 
     <script>
-        const card = document.getElementById('tinder-card');
-        const skipGuide = document.getElementById('skip-guide');
-        const inviteGuide = document.getElementById('invite-guide');
-        const allAudios = document.querySelectorAll('.profile-audio');
+    const card = document.getElementById('tinder-card');
+    const skipGuide = document.getElementById('skip-guide');
+    const inviteGuide = document.getElementById('invite-guide');
+    const allAudios = document.querySelectorAll('.profile-audio');
 
-        if (card) {
-            const hammer = new Hammer(card);
+    if (card) {
+        const hammer = new Hammer(card);
 
-            hammer.on('pan', (ev) => {
-                card.classList.remove('moving');
-                card.style.transform = `translateX(${ev.deltaX}px)`;
+        hammer.on('pan', (ev) => {
+            card.classList.remove('moving');
+            // Keep it 0 degrees - strictly horizontal
+            card.style.transform = `translateX(${ev.deltaX}px)`;
 
-                if (ev.deltaX > 0) { // Right (Invite)
-                    inviteGuide.style.opacity = Math.max(0.3 - (ev.deltaX / 400), 0);
-                    skipGuide.style.opacity = 0.3;
-                } else { // Left (Skip)
-                    skipGuide.style.opacity = Math.max(0.3 - (Math.abs(ev.deltaX) / 400), 0);
-                    inviteGuide.style.opacity = 0.3;
-                }
-            });
-
-            hammer.on('panend', (ev) => {
-                card.classList.add('moving');
-                if (ev.deltaX > 150) { // Right = Invite
-                    card.style.transform = 'translateX(1000px)';
-                    allAudios.forEach(a => a.pause());
-                    // Triggers the hidden form
-                    setTimeout(() => document.getElementById('invite-form').submit(), 200);
-                } else if (ev.deltaX < -150) { // Left = Skip
-                    card.style.transform = 'translateX(-1000px)';
-                    allAudios.forEach(a => a.pause());
-                    // Navigates to the hidden link
-                    setTimeout(() => window.location.href = document.getElementById('next-link').href, 200);
-                } else {
-                    card.style.transform = 'translateX(0px)';
-                    skipGuide.style.opacity = 0.3;
-                    inviteGuide.style.opacity = 0.3;
-                }
-            });
-        }
-
-        allAudios.forEach(audio => {
-            audio.addEventListener('play', () => {
-                allAudios.forEach(other => { if (other !== audio) other.pause(); });
-            });
+            if (ev.deltaX > 0) { // Dragging Right
+                inviteGuide.style.opacity = Math.min(0.3 + (ev.deltaX / 400), 1);
+                skipGuide.style.opacity = 0.3;
+            } else { // Dragging Left
+                skipGuide.style.opacity = Math.min(0.3 + (Math.abs(ev.deltaX) / 400), 1);
+                inviteGuide.style.opacity = 0.3;
+            }
         });
-        // Auto-hide notifications so the user can keep swiping
-document.addEventListener('DOMContentLoaded', () => {
-    const toast = document.getElementById('flash-toast');
-    if (toast) {
-        setTimeout(() => {
-            toast.style.transition = "all 0.5s ease";
-            toast.style.opacity = "0";
-            toast.style.transform = "translate(-50%, -20px)";
-            setTimeout(() => toast.remove(), 500);
-        }, 2500); // Shows for 2.5 seconds then vanishes
-    }
-});
-    </script>
 
+        hammer.on('panend', (ev) => {
+            card.classList.add('moving');
+            
+            if (ev.deltaX > 150) { 
+                // Swipe Right = INVITE
+                card.style.transform = 'translateX(1000px)';
+                allAudios.forEach(a => a.pause());
+                setTimeout(() => document.getElementById('invite-form').submit(), 200);
+            } 
+            else if (ev.deltaX < -150) { 
+                // Swipe Left = SIMPLE SKIP (No Blacklist)
+                card.style.transform = 'translateX(-1000px)';
+                allAudios.forEach(a => a.pause());
+                // Just go to the next profile using the link
+                setTimeout(() => {
+                    window.location.href = document.getElementById('next-link').href;
+                }, 200);
+            } 
+            else {
+                // Snap back to center if swipe wasn't far enough
+                card.style.transform = 'translateX(0px)';
+                skipGuide.style.opacity = 0.3;
+                inviteGuide.style.opacity = 0.3;
+            }
+        });
+    }
+
+    // Audio logic: only play one at a time
+    allAudios.forEach(audio => {
+        audio.addEventListener('play', () => {
+            allAudios.forEach(other => { if (other !== audio) other.pause(); });
+        });
+    });
+
+    // Flash message auto-hide
+    document.addEventListener('DOMContentLoaded', () => {
+        const toast = document.getElementById('flash-toast');
+        if (toast) {
+            setTimeout(() => {
+                toast.style.transition = "all 0.5s ease";
+                toast.style.opacity = "0";
+                toast.style.transform = "translate(-50%, -20px)";
+                setTimeout(() => toast.remove(), 500);
+            }, 2500);
+        }
+    });
+</script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
-      {% for category, message in messages %}
-        <div class="bg-[#077A7D] text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          {{ message }}
+      {% if messages %}
+        <div id="flash-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none">
+          {% for category, message in messages %}
+            <div class="bg-[#077A7D] text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+      {% endif %}
+    {% endwith %}
 </body>
 </html>
