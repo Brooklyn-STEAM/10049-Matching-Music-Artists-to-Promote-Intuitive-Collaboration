@@ -145,6 +145,27 @@ def profile():
         
     return render_template("profile.html.jinja", Profile=profile_data, Songs=songs, user_interests=user_interests )
 
+
+
+
+@app.route('/interest', methods=["POST"])
+@login_required
+def update_interests():
+    selected_interests = request.form.getlist('interest')  # Get selected interest IDs
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    # Clear existing interests for the user
+    cursor.execute("DELETE FROM User_Interest WHERE User_ID = %s", (current_user.id,))
+
+    # Insert new interests
+    for interest_id in selected_interests:
+        cursor.execute("INSERT INTO User_Interest (User_ID, Interest_ID) VALUES (%s, %s)", (current_user.id, interest_id))
+
+    connection.close()
+    flash("Interests updated successfully!")
+    return redirect(url_for('profile'))
+
 @app.route('/profile_customization', methods=["GET", "POST"])
 @login_required
 def profile_settings():
