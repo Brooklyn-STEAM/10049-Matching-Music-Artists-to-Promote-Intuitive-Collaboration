@@ -145,6 +145,25 @@ def profile():
         
     return render_template("profile.html.jinja", Profile=profile_data, Songs=songs, user_interests=user_interests )
 
+
+@app.route('/interest', methods=["POST"])
+@login_required
+def update_interests():
+    selected_interests = request.form.getlist('interest')  # Get selected interest IDs
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    # Clear existing interests for the user
+    cursor.execute("DELETE FROM User_Interest WHERE User_ID = %s", (current_user.id,))
+
+    # Insert new interests
+    for interest_id in selected_interests:
+        cursor.execute("INSERT INTO User_Interest (User_ID, Interest_ID) VALUES (%s, %s)", (current_user.id, interest_id))
+
+    connection.close()
+    flash("Interests updated successfully!")
+    return redirect(url_for('profile'))
+
 @app.route('/profile_customization', methods=["GET", "POST"])
 @login_required
 def profile_settings():
@@ -186,8 +205,7 @@ def profile_settings():
     cursor.execute('SELECT * FROM `Interest`')
     interests = cursor.fetchall()
 
-    # 3. THE FIX: Fetch the names of blacklisted users
-    # We JOIN the Dislikes table with the Profile table to get the human-readable names
+    # 3. Fetch the names of blacklisted users
     cursor.execute("""
         SELECT u.User_ID, p.Profile_name 
         FROM Dislikes d
@@ -203,7 +221,7 @@ def profile_settings():
         "profile_customization.html.jinja", 
         Interest=interests, 
         Profile=profile_data, 
-        Blacklist=blacklisted_users  # This matches the loop in your template!
+        Blacklist=blacklisted_users
     )
 
 
@@ -213,18 +231,15 @@ def matching():
     connection = connect_db()
     cursor = connection.cursor()
     
-    # 1. Fetch current user's interests
+    # 1. Fetch current user's interest IDs
     cursor.execute("SELECT Interest_ID FROM User_Interest WHERE User_ID = %s", (current_user.id,))
     my_interest_ids = [row['Interest_ID'] for row in cursor.fetchall()]
 
-    # If the user has no interests, they can't match with anyone!
     if not my_interest_ids:
         connection.close()
-        return render_template("matching.html.jinja", profile=None, songs=[], next_index=0)
+        return render_template("matching.html.jinja", profile=None, songs=[])
 
-    # 2. THE BIG FIX: Filter by Interest AND Exclude Invites/Matches all in one query
-    # We use 'DISTINCT' so if you share 3 interests with someone, they only show up once.
-   # 2. Get potential matches (Now including the Blacklist check)
+    # 2. Fetch EVERYONE who shares at least one of those interests
     cursor.execute("""
         SELECT DISTINCT u.User_ID, p.Profile_name, p.description, p.Profile_picture
         FROM User u
@@ -232,53 +247,24 @@ def matching():
         JOIN User_Interest ui ON u.User_ID = ui.User_ID
         WHERE u.User_ID != %s 
         AND ui.Interest_ID IN %s
-        AND u.User_ID NOT IN (
-            SELECT User_2 FROM invites WHERE User_1 = %s
-            UNION
-            SELECT User_1 FROM invites WHERE User_2 = %s
-            UNION
-            SELECT User_1 FROM Matches WHERE User_2 = %s
-            UNION
-            SELECT User_2 FROM Matches WHERE User_1 = %s
-            UNION
-            -- NEW: Check the blacklist/dislikes table
-            SELECT Target_ID FROM Dislikes WHERE User_ID = %s
-        )
-    """, (current_user.id, tuple(my_interest_ids), current_user.id, current_user.id, current_user.id, current_user.id, current_user.id))
+    """, (current_user.id, tuple(my_interest_ids)))
     
-    profiles_in_feed = cursor.fetchall()
+    all_eligible_matches = cursor.fetchall()
 
-    # --- SHUFFLE LOGIC ---
-    index = request.args.get('index', 0, type=int)
-    
-    if index == 0 or 'shuffled_ids' not in session:
-        random.shuffle(profiles_in_feed)
-        session['shuffled_ids'] = [p['User_ID'] for p in profiles_in_feed]
-    
-    # Re-order based on the session deck
-    ordered_feed = []
-    shuffled_ids = session.get('shuffled_ids', [])
-    # Re-map the full profile data to the shuffled ID list
-    for sid in shuffled_ids:
-        match = next((p for p in profiles_in_feed if p['User_ID'] == sid), None)
-        if match:
-            ordered_feed.append(match)
-
-    # 3. Pick the person to display
     display = None
     songs = []
-    if index < len(ordered_feed):
-        display = ordered_feed[index]
+
+    # 3. Pick exactly ONE random person from that pool
+    if all_eligible_matches:
+        display = random.choice(all_eligible_matches)
+        
+        # 4. Fetch the songs for that specific random person
         cursor.execute("SELECT * FROM Discography WHERE ID = %s", (display['User_ID'],))
         songs = cursor.fetchall()
-    else:
-        session.pop('shuffled_ids', None) # Clear when finished
-        # If they finished the list, but there's more people (or list is empty), reset
-        if index > 0:
-            return redirect(url_for('matching', index=0))
 
-    connection.close() # ONLY CLOSE AT THE VERY END
-    return render_template("matching.html.jinja", profile=display, songs=songs, next_index=index + 1)
+    connection.close() 
+    
+    return render_template("matching.html.jinja", profile=display, songs=songs)
 
 
 @app.route('/invites')
@@ -287,21 +273,65 @@ def view_invites():
     connection = connect_db()
     cursor = connection.cursor()
     
-    # IMPORTANT: Mark all invites as 'seen' (1) now that the user is on the page
+    # Mark all invites as 'seen'
     cursor.execute("UPDATE invites SET seen = 1 WHERE User_2 = %s", (current_user.id,))
     
-    # Fetch the info to display on the page
+    # Fetch invites
     cursor.execute("""
-        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture, d.Song_file
+        SELECT u.User_ID, u.email, p.Profile_name, p.Profile_picture
         FROM User u
         JOIN Profile p ON u.User_ID = p.User_ID
         JOIN invites i ON u.User_ID = i.User_1
-        JOIN Discography d ON u.User_ID = d.ID
         WHERE i.User_2 = %s
     """, (current_user.id,))
     received = cursor.fetchall()
     connection.close()
-    return render_template("invites.html.jinja", Invites_sent_to_user=received, )
+    
+    return render_template("invites.html.jinja", Invites_sent_to_user=received)
+
+
+# --- NEW: DETAILED PROFILE REVIEW ROUTE ---
+@app.route('/invites/<int:sender_id>/review')
+@login_required
+def review_invite_profile(sender_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+    
+    # 1. Safety verification check
+    cursor.execute("SELECT 1 FROM invites WHERE User_1 = %s AND User_2 = %s", (sender_id, current_user.id))
+    invite_exists = cursor.fetchone()
+    
+    if not invite_exists:
+        connection.close()
+        abort(404)
+
+    # 2. Fetch Target Profile Info
+    cursor.execute('SELECT * FROM `Profile` WHERE `User_ID` = %s', (sender_id,))
+    profile_data = cursor.fetchone()
+
+    # 3. Fetch Target Interests
+    cursor.execute("""
+        SELECT Interest.name, Interest.interest_ID
+        FROM User_Interest
+        JOIN Interest ON User_Interest.interest_ID = Interest.interest_ID
+        WHERE User_Interest.User_ID = %s
+    """, (sender_id,))
+    user_interests = cursor.fetchall()
+
+    # 4. Fetch Target Songs
+    cursor.execute('SELECT * FROM `Discography` WHERE `ID` = %s', (sender_id,))
+    songs = cursor.fetchall()
+    
+    connection.close()
+        
+    return render_template(
+        "review_profile.html.jinja", 
+        Profile=profile_data, 
+        Songs=songs, 
+        user_interests=user_interests,
+        sender_id=sender_id
+    )
+
 
 @app.route('/invites/<int:target_id>/send', methods=["POST"])
 @login_required
@@ -313,10 +343,10 @@ def invites_send(target_id):
     songs = cursor.fetchall()
     flash("Invitation Sent!")
     connection.close()
-    return redirect(url_for('matching', index=request.args.get('index', 0),Songs=songs))
+    return redirect(url_for('matching'))
 
 
-@app.route('/invites/<sender_id>/accept', methods=["POST"])
+@app.route('/invites/<int:sender_id>/accept', methods=["POST"])
 @login_required
 def accept_invite(sender_id):
     connection = connect_db()
@@ -326,7 +356,7 @@ def accept_invite(sender_id):
     connection.close()
     return redirect(url_for('view_invites'))
 
-@app.route('/invites/<sender_id>/decline', methods=["POST"])
+@app.route('/invites/<int:sender_id>/decline', methods=["POST"])
 @login_required
 def decline_invite(sender_id):
     connection = connect_db()
@@ -344,14 +374,13 @@ def dislike_user(target_id):
     try:
         cursor.execute("INSERT IGNORE INTO Dislikes (User_ID, Target_ID) VALUES (%s, %s)", 
                        (current_user.id, target_id))
-        # Add the flash message here
         flash("Artist added to Blacklist. You can manage this in settings.")
     except Exception as e:
         print(f"Error: {e}")
     finally:
         connection.close()
     
-    return redirect(url_for('matching', index=request.args.get('index', 0)))
+    return redirect(url_for('matching'))
 
 @app.route('/collaborate')
 @login_required
@@ -376,7 +405,6 @@ def logout():
     return redirect("/")
 
 
-
 @app.route('/profile_customization/upload_song', methods=["POST"])
 @login_required
 def upload_song():
@@ -389,15 +417,12 @@ def upload_song():
 
         connection = connect_db()
         cursor = connection.cursor()
-        # Using the column names from your screenshot (ID = User ID, Song_name = filename)
         cursor.execute("""
             INSERT INTO `Discography` (`ID`, `Song_name`,`Song_file`) 
             VALUES (%s, %s, %s)
         """, (current_user.id, song_name, filename))
         connection.close()
         flash(f"Uploaded '{song_name}' to your discography!")
-        #cursor.execute("SELECT * FROM `Discography` WHERE `ID` = %s",(current_user.id))
-       # User_Discography = []
     
     return redirect(url_for('profile'))
 
@@ -413,15 +438,8 @@ def delete_song(song_id):
 
 @app.route('/invites/<int:user_id>/send', methods=['POST'])
 def send_invite(user_id):
-    
-    
-    
     flash("Invitation Sent!", "success") 
-    
-    next_index = request.args.get('index', 0)
-    return redirect(url_for('matching', index=next_index))
-
-
+    return redirect(url_for('matching'))
 
 
 @app.context_processor
@@ -429,7 +447,6 @@ def inject_notifications():
     if current_user.is_authenticated:
         connection = connect_db()
         cursor = connection.cursor()
-        # Look for any invites where 'seen' is 0 for the logged-in user
         cursor.execute("SELECT COUNT(*) as count FROM invites WHERE User_2 = %s AND seen = 0", (current_user.id,))
         result = cursor.fetchone()
         connection.close()
@@ -442,7 +459,6 @@ def inject_notifications():
 def remove_blacklist(target_id):
     connection = connect_db()
     cursor = connection.cursor()
-    # Delete the connection between you and the person you disliked
     cursor.execute("DELETE FROM Dislikes WHERE User_ID = %s AND Target_ID = %s", (current_user.id, target_id))
     connection.close()
     flash("Artist removed from Blacklist!")
@@ -487,4 +503,40 @@ def send_message(User_ID):
     
     return render_template("chat.html.jinja")
 
+@app.route('/view_profile/<int:user_id>')
+@login_required
+def view_profile(user_id):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    
+    cursor.execute("SELECT * FROM Profile WHERE User_ID = %s", (user_id,))
+    profile_data = cursor.fetchone()
+
+    if not profile_data:
+        connection.close()
+        abort(404)  
+
+
+   
+    cursor.execute("""
+        SELECT Interest.name 
+        FROM User_Interest
+        JOIN Interest ON User_Interest.interest_ID = Interest.interest_ID
+        WHERE User_Interest.User_ID = %s
+    """, (user_id,))
+    user_interests = cursor.fetchall()
+
+   
+    cursor.execute("SELECT * FROM Discography WHERE ID = %s", (user_id,))
+    user_songs = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "view_profile.html.jinja",
+        Profile = profile_data,
+        Interests = user_interests,
+        Songs = user_songs
+    )
 
