@@ -448,4 +448,43 @@ def remove_blacklist(target_id):
     flash("Artist removed from Blacklist!")
     return redirect(url_for('profile_settings'))
 
+@app.route("/chat/<User_ID>")
+@login_required
+def chatroom(User_ID):
+    chat_log = []
+    
+    connection = connect_db()
+    cursor = connection.cursor()
+    cursor.execute(""" 
+    SELECT User.User_ID, Profile.ID, Profile.Profile_name, Profile.Profile_picture
+    FROM User
+    JOIN Profile ON User.User_ID = Profile.ID
+    WHERE User.User_ID = %s 
+    """,(User_ID))
+    individual_chat_room = cursor.fetchone()
+
+    # the preiviously sent messages
+    cursor.execute("SELECT * FROM `messages` WHERE (`sender` = %s AND `receiver` = %s)",(current_user.id, User_ID))
+    current_user_messages = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM `messages` WHERE (`receiver` = %s AND `sender` = %s)",(current_user.id, User_ID))
+    User_messages = cursor.fetchall()
+    
+    chat_log.extend(current_user_messages)
+    chat_log.extend(User_messages)
+    connection.close()
+    return render_template("chat.html.jinja",chatroom=individual_chat_room, sender_message=current_user_messages, receiver_messages=User_messages, chat_log=chat_log )
+
+@app.route("/chat/<User_ID>/send", methods=["POST", "GET"])
+@login_required
+def send_message(User_ID):
+    if request.method == 'POST':
+        message = request.form["message"]
+        connection = connect_db()
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO `messages` (`sender`,`receiver`,`message`) VALUES(%s, %s, %s)",(current_user.id, User_ID, message))
+        connection.close()
+    
+    return render_template("chat.html.jinja")
+
 

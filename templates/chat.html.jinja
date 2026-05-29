@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <title>Backstage - Collaborations</title>
+</head>
+
+<body class="bg-[#077A7D] text-white min-h-screen">
+
+{% include "components/navbar.html.jinja" %}
+
+{% if chatroom %}
+
+<div class="flex justify-center items-center px-4 py-6">
+
+    <!-- Chat Container -->
+    <div class="w-full max-w-4xl h-[85vh] bg-white rounded-3xl shadow-xl flex flex-col overflow-hidden border border-gray-200">
+
+        <!-- Header -->
+        <section class="flex items-center gap-4 px-6 py-4 bg-[#06202B] text-white border-b border-gray-200">
+
+            <img
+            src="{{ url_for('static', filename='uploads/' + chatroom.Profile_picture) if chatroom.Profile_picture != 'default' else '/static/profile.jpg' }}"
+            class="w-14 h-14 rounded-full object-cover border-2 border-white"
+            alt="Profile picture">
+
+            <div>
+                <h1 class="text-xl font-bold tracking-wide">
+                    {{ chatroom.Profile_name }}
+                </h1>
+
+                <p class="text-sm text-gray-300">
+                    Active now
+                </p>
+            </div>
+
+        </section>
+
+        <!-- Messages Area -->
+        <section class="flex-1 overflow-y-auto px-6 py-5 bg-[#F5EEDD] space-y-4">
+
+            <!-- Messages will appear here -->
+            {%for row in chat_log%}
+                {%if row.sender == current_user.id%}
+                    <div class="flex justify-end border rounded-full">
+                        <h3 class="text-white px-4 py-3 bg-[#06202B]">{{row.message}}</h3>
+                        <p class="text-sm font-thin text-grey-300 ">{{row.time}}</p>
+                    </div>
+                {%elif row.sender == User_ID%}
+                    <div class="flex justify-start border rounded-full">
+                        <h3 class="text-white px-4 py-3 bg-[#06202B]">{{row.message}}</h3>
+                        <p class="text-sm font-thin text-grey-300 ">{{row.time}}</p>
+                    </div>
+                {%endif%}
+
+            {%endfor%}
+
+        </section>
+
+        <!-- Message Input -->
+        <section class="bg-white border-t border-gray-200 px-4 py-4">
+
+            <form action="/chat/{{chatroom.User_ID}}/send" method="post" class="flex items-center gap-3">
+
+                <input
+                type="text"
+                name="message"
+                placeholder="Say what's up..."
+                id="message"
+                class="flex-1 bg-[#F5EEDD] text-[#06202B] placeholder-gray-500 px-5 py-3 rounded-full outline-none border border-gray-300 focus:border-[#06202B] focus:ring-2 focus:ring-[#06202B] transition-all duration-200"
+                >
+
+                <button
+                type="submit"
+                class="bg-[#077A7D] hover:bg-[#0b2d3d] text-white transition-all duration-200 px-6 py-3 rounded-full font-semibold shadow-md">
+                    Send
+                </button>
+
+            </form>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endif %}
+ <section  class="flex justify-center">
+        {%include "components/lilnav.html.jinja"%}
+   </section>
+
+</body>
+</html>
